@@ -52,3 +52,19 @@ English text lives in the HTML. Any element with `data-i18n="some.key"` is swapp
 - The site is served from the root of **ulethpama.space** (see `CNAME`). `404.html` uses `<base href="/">` and redirects old links such as `Team.html` and `/Website/…`.
 - Have a fluent speaker proofread `fr.js`.
 - Optional: add real event photos and exec portraits, and a 1200×630 `og.jpg` for link previews.
+
+## Page themes and image credits
+
+Each page sets `data-theme` on `<body>`, which picks its accent colour (in `style.css`, "Page themes") and its animated sky effect (in `main.js` → `starfield()`). Hero photos live in `assets/img/bg/` and come from NASA's public image library (images.nasa.gov):
+
+| Page | Image | Credit |
+|---|---|---|
+| Home | Bubble Nebula (NGC 7635) | NASA, ESA, Hubble Heritage Team |
+| About | Cosmic Cliffs, Carina Nebula (NGC 3324) | NASA, ESA, CSA, STScI |
+| Events | Pillars of Creation, Eagle Nebula (M16), infrared | NASA, ESA, Hubble Heritage Team |
+| Team | Stephan's Quintet | NASA, ESA, CSA, STScI |
+| Resources | Webb's First Deep Field (SMACS 0723) | NASA, ESA, CSA, STScI |
+| News | Crab Nebula (M1) | NASA, ESA, J. Hester (ASU) |
+| Join | The Pleiades (M45) | NASA/JPL-Caltech |
+
+Keep the on-page credit line when swapping images.

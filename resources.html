@@ -21,20 +21,49 @@
   <script src="assets/js/data.js" defer></script>
   <script src="assets/js/main.js" defer></script>
 </head>
-<body id="top">
+<body id="top" data-theme="resources">
   <site-header active="resources"></site-header>
 
   <div class="page">
     <main id="main">
 
-      <section class="page-hero" style="--hero-pos: 50% 85%">
-        <div class="container page-hero__inner">
+      <section class="page-hero" style="--gx: 76%; --gy: 45%">
+        <div class="page-hero__bg" style="background-image:url('assets/img/bg/deep-field.jpg')" aria-hidden="true"></div>
+        <div class="container page-hero__grid">
           <div>
             <p class="eyebrow intro" data-i18n="res.hero.eyebrow">Resources</p>
             <h1 class="h1 intro" style="--d:80ms" data-i18n="res.hero.title">Instruments for the curious mind.</h1>
             <p class="lead intro" style="--d:160ms" data-i18n="res.hero.lead">Study support, research opportunities, tools and observing guides — the things we wish someone had told us in first year.</p>
           </div>
+          <div class="page-hero__visual intro" style="--d:220ms">
+            <div class="instrument instrument--wide corner-ticks pt">
+              <div class="instrument__bar" aria-hidden="true"><span data-i18n="inst.res">Fig. 05 — Periodic table of resources</span><span data-i18n="inst.resN">12 elements</span></div>
+              <div class="instrument__body">
+                <nav class="pt__groups" aria-label="Jump to a section" data-i18n-attr="aria-label:res.jump">
+                  <a href="#study" data-g="1"><i>I</i><span data-i18n="res.study.eyebrow">Study</span></a>
+                  <a href="#research" data-g="2"><i>II</i><span data-i18n="res.dir.research">Research</span></a>
+                  <a href="#tools" data-g="3"><i>III</i><span data-i18n="res.tools.eyebrow">Tools</span></a>
+                  <a href="#observing" data-g="4"><i>IV</i><span data-i18n="res.obs.eyebrow">Observing</span></a>
+                </nav>
+                <div class="pt__grid">
+                  <a class="pt__el" data-g="1" style="--i:0" href="https://www.feynmanlectures.caltech.edu/" target="_blank" rel="noopener"><span class="pt__n">1</span><span class="pt__sym">Fl</span><span class="pt__name">Feynman</span></a>
+                  <a class="pt__el" data-g="2" style="--i:1" href="https://www.nserc-crsng.gc.ca/" target="_blank" rel="noopener"><span class="pt__n">2</span><span class="pt__sym">Us</span><span class="pt__name">NSERC USRA</span></a>
+                  <a class="pt__el" data-g="3" style="--i:2" href="https://arxiv.org/" target="_blank" rel="noopener"><span class="pt__n">3</span><span class="pt__sym">Ax</span><span class="pt__name">arXiv</span></a>
+                  <a class="pt__el" data-g="4" style="--i:3" href="https://stellarium.org/" target="_blank" rel="noopener"><span class="pt__n">4</span><span class="pt__sym">St</span><span class="pt__name">Stellarium</span></a>
+                  <a class="pt__el" data-g="1" style="--i:4" href="https://ocw.mit.edu/" target="_blank" rel="noopener"><span class="pt__n">5</span><span class="pt__sym">Oc</span><span class="pt__name">MIT OCW</span></a>
+                  <a class="pt__el" data-g="2" style="--i:5" href="https://www.cap.ca/" target="_blank" rel="noopener"><span class="pt__n">6</span><span class="pt__sym">Ap</span><span class="pt__name">CAP</span></a>
+                  <a class="pt__el" data-g="3" style="--i:6" href="https://www.overleaf.com/" target="_blank" rel="noopener"><span class="pt__n">7</span><span class="pt__sym">Ol</span><span class="pt__name">Overleaf</span></a>
+                  <a class="pt__el" data-g="4" style="--i:7" href="https://www.lightpollutionmap.info/" target="_blank" rel="noopener"><span class="pt__n">8</span><span class="pt__sym">Dk</span><span class="pt__name" data-i18n="res.pt.dark">Dark skies</span></a>
+                  <a class="pt__el" data-g="1" style="--i:8" href="https://www.3blue1brown.com/" target="_blank" rel="noopener"><span class="pt__n">9</span><span class="pt__sym">Bb</span><span class="pt__name">3Blue1Brown</span></a>
+                  <a class="pt__el" data-g="2" style="--i:9" href="https://casca.ca/" target="_blank" rel="noopener"><span class="pt__n">10</span><span class="pt__sym">Cs</span><span class="pt__name">CASCA</span></a>
+                  <a class="pt__el" data-g="3" style="--i:10" href="https://jupyter.org/" target="_blank" rel="noopener"><span class="pt__n">11</span><span class="pt__sym">Jp</span><span class="pt__name">Jupyter</span></a>
+                  <a class="pt__el" data-g="4" style="--i:11" href="https://www.heavens-above.com/" target="_blank" rel="noopener"><span class="pt__n">12</span><span class="pt__sym">Ha</span><span class="pt__name">Heavens-Above</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
+        <p class="page-hero__credit"><b data-i18n="credit.resources">Webb's First Deep Field · SMACS 0723</b> — NASA, ESA, CSA, STScI</p>
       </section>
 
       <section class="section" aria-label="Resource directory" data-i18n-attr="aria-label:res.dirLabel">
@@ -75,11 +104,12 @@
 
           <!-- Research -->
           <div class="res-group" id="research">
-            <div class="section-head">
+            <div class="split">
+              <div class="split__aside stack" style="--stack:1.25rem">
               <p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="res.research.eyebrow">Research &amp; careers</span></p>
               <h2 class="h2 reveal" data-i18n="res.research.title">Do real science</h2>
               <p class="lead reveal" data-i18n="res.research.lead">Undergraduate research is one of the best things you can do for your degree. These are the organisations and programs to know.</p>
-            </div>
+              </div>
             <div class="res-list" data-stagger>
               <a class="res" href="https://www.nserc-crsng.gc.ca/" target="_blank" rel="noopener"><span class="res__name" data-i18n="res.l.usra.t">NSERC USRA</span><span class="res__desc" data-i18n="res.l.usra">Paid summer research positions for undergraduates in the natural sciences. Applications usually open in winter.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
               <a class="res" href="https://www.cap.ca/" target="_blank" rel="noopener"><span class="res__name" data-i18n="res.l.cap.t">Canadian Association of Physicists</span><span class="res__desc" data-i18n="res.l.cap">Student membership, the Canadian Undergraduate Physics Conference (CUPC) and career resources.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
@@ -87,14 +117,16 @@
               <a class="res" href="https://cms.math.ca/" target="_blank" rel="noopener"><span class="res__name" data-i18n="res.l.cms.t">Canadian Mathematical Society</span><span class="res__desc" data-i18n="res.l.cms">Student conferences, competitions and publications in mathematics.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
               <a class="res" href="https://www.uleth.ca/" target="_blank" rel="noopener"><span class="res__name">University of Lethbridge</span><span class="res__desc" data-i18n="res.l.uleth">Departmental research groups, honours theses and on-campus opportunities.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
             </div>
+            </div>
           </div>
 
           <!-- Tools -->
           <div class="res-group" id="tools">
-            <div class="section-head">
+            <div class="split">
+              <div class="split__aside stack" style="--stack:1.25rem">
               <p class="eyebrow reveal"><span class="idx">03</span><span data-i18n="res.tools.eyebrow">Tools</span></p>
               <h2 class="h2 reveal" data-i18n="res.tools.title">The working kit</h2>
-            </div>
+              </div>
             <div class="res-list" data-stagger>
               <a class="res" href="https://arxiv.org/" target="_blank" rel="noopener"><span class="res__name">arXiv</span><span class="res__desc" data-i18n="res.l.arxiv">Open-access preprints in physics, astronomy and mathematics — where new results appear first.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
               <a class="res" href="https://ui.adsabs.harvard.edu/" target="_blank" rel="noopener"><span class="res__name">NASA ADS</span><span class="res__desc" data-i18n="res.l.ads">The literature search engine for astronomy and astrophysics.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
@@ -103,20 +135,24 @@
               <a class="res" href="https://www.desmos.com/calculator" target="_blank" rel="noopener"><span class="res__name">Desmos</span><span class="res__desc" data-i18n="res.l.desmos">A fast, beautiful graphing calculator for building intuition.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
               <a class="res" href="https://www.wolframalpha.com/" target="_blank" rel="noopener"><span class="res__name">Wolfram|Alpha</span><span class="res__desc" data-i18n="res.l.wolfram">Check an integral, a unit conversion or a physical constant in seconds.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
             </div>
+            </div>
           </div>
 
           <!-- Observing -->
           <div class="res-group" id="observing">
-            <div class="section-head">
+            <div class="split">
+              <div class="split__aside stack" style="--stack:1.25rem">
               <p class="eyebrow reveal"><span class="idx">04</span><span data-i18n="res.obs.eyebrow">Observing</span></p>
               <h2 class="h2 reveal" data-i18n="res.obs.title">Under southern Alberta skies</h2>
-            </div>
-            <div class="sky reveal" data-moon></div>
-            <div class="res-list mt-m" data-stagger>
+              <div class="sky reveal mt-m" data-moon></div>
+              </div>
+
+            <div class="res-list" data-stagger>
               <a class="res" href="https://stellarium.org/" target="_blank" rel="noopener"><span class="res__name">Stellarium</span><span class="res__desc" data-i18n="res.l.stellarium">Free planetarium software. Set it to Lethbridge and plan your night.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
               <a class="res" href="https://www.lightpollutionmap.info/" target="_blank" rel="noopener"><span class="res__name" data-i18n="res.l.lpm.t">Light Pollution Map</span><span class="res__desc" data-i18n="res.l.lpm">Find the darkest skies within driving distance of campus.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
               <a class="res" href="https://www.heavens-above.com/" target="_blank" rel="noopener"><span class="res__name">Heavens-Above</span><span class="res__desc" data-i18n="res.l.heavens">When to see the International Space Station and other satellites pass overhead.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
               <a class="res" href="https://www.rasc.ca/" target="_blank" rel="noopener"><span class="res__name" data-i18n="res.l.rasc.t">Royal Astronomical Society of Canada</span><span class="res__desc" data-i18n="res.l.rasc">Canada's national amateur astronomy society, with local centres and the Observer's Handbook.</span><span class="res__go" aria-hidden="true"><span class="i i-out"></span></span></a>
+            </div>
             </div>
           </div>
 

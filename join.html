@@ -21,14 +21,15 @@
   <script src="assets/js/data.js" defer></script>
   <script src="assets/js/main.js" defer></script>
 </head>
-<body id="top">
+<body id="top" data-theme="join">
   <site-header active="join"></site-header>
 
   <div class="page">
     <main id="main">
 
-      <section class="page-hero" style="--hero-pos: 40% 50%">
-        <div class="container page-hero__inner">
+      <section class="page-hero" style="--gx: 70%; --gy: 50%">
+        <div class="page-hero__bg" style="background-image:url('assets/img/bg/pleiades.jpg')" aria-hidden="true"></div>
+        <div class="container page-hero__grid">
           <div>
             <p class="eyebrow intro" data-i18n="join.hero.eyebrow">Membership</p>
             <h1 class="h1 intro" style="--d:80ms" data-i18n="join.hero.title">Pull up a chair — and a telescope.</h1>
@@ -37,9 +38,33 @@
               <a class="btn btn--solid" data-link="joinForm" target="_blank" rel="noopener"><span data-i18n="join.hero.form">Membership form</span> <span class="i i-out" aria-hidden="true"></span></a>
               <a class="btn" href="#faq" data-i18n="join.hero.faq">Questions?</a>
             </div>
+            <div class="stat-trio intro" style="--d:300ms">
+              <div><b data-i18n="join.hero.costv">$0</b><span data-i18n="join.hero.cost">Cost</span></div>
+              <div><b data-i18n="join.hero.timev">~2 min</b><span data-i18n="join.hero.time">Time</span></div>
+              <div><b>0</b><span data-i18n="join.hero.prereq">Prerequisites</span></div>
+            </div>
           </div>
-          <p class="page-hero__meta intro" style="--d:280ms"><span data-i18n="join.hero.cost">Cost</span> <b data-i18n="join.hero.costv">$0</b><br><span data-i18n="join.hero.time">Time</span> <b data-i18n="join.hero.timev">~2 min</b></p>
+          <div class="page-hero__visual intro" style="--d:220ms" aria-hidden="true">
+            <div class="instrument corner-ticks">
+              <div class="instrument__bar"><span data-i18n="inst.join">Fig. 07 — Orbit insertion</span><span class="instrument__status" data-i18n="inst.nominal">Nominal trajectory</span></div>
+              <div class="instrument__body">
+              <svg class="insertion" viewBox="0 0 400 400" fill="none">
+              <circle cx="200" cy="200" r="120" stroke="rgba(255,255,255,.28)"/>
+              <circle cx="200" cy="200" r="160" stroke="rgba(255,255,255,.1)" stroke-dasharray="2 6"/>
+              <circle cx="200" cy="200" r="190" stroke="rgba(255,255,255,.2)" stroke-width="5" stroke-dasharray="1 10.93"/>
+              <path d="M24 384C80 356 140 330 200 320" style="stroke:rgba(var(--accent-rgb),.55)" stroke-dasharray="3 5"/>
+              <circle cx="200" cy="200" r="46" fill="url(#pl)"/>
+              <circle cx="200" cy="200" r="22" fill="#0d1120" stroke="rgba(255,255,255,.5)"/>
+              <path d="M178 200h44" stroke="rgba(255,255,255,.25)"/>
+              <defs><radialGradient id="pl"><stop offset="0" style="stop-color:var(--accent)" stop-opacity=".35"/><stop offset="1" style="stop-color:var(--accent)" stop-opacity="0"/></radialGradient></defs>
+              <circle r="5" style="fill:var(--accent)"><animateMotion dur="12s" repeatCount="indefinite" keyPoints="0;0.111;1" keyTimes="0;0.08;1" calcMode="linear" path="M24 384C80 356 140 320 200 320A120 120 0 1 0 200 80A120 120 0 1 0 200 320A120 120 0 1 0 200 80A120 120 0 1 0 200 320"/></circle>
+              <text x="206" y="336" font-family="JetBrains Mono, monospace" font-size="9" letter-spacing="1.6" fill="#8e95a7">ORBIT 01</text>
+            </svg>
+              </div>
+            </div>
+          </div>
         </div>
+        <p class="page-hero__credit"><b data-i18n="credit.join">The Pleiades (M45)</b> — NASA/JPL-Caltech</p>
       </section>
 
       <!-- Steps -->

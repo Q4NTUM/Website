@@ -60,8 +60,9 @@
       const onJoin = active === "join";
       const items = NAV.map((n, i) => `
         <a class="menu__item" href="${ROOT + n.href}" style="--i:${i}"${n.id === active ? ' aria-current="page"' : ""}>
-          <span class="menu__label"><span class="menu__num" aria-hidden="true">0${i + 1}</span><span data-i18n="nav.${n.id}">${n.label}</span></span>
-          <span class="menu__dot" aria-hidden="true"></span>
+          <span class="menu__num" aria-hidden="true">0${i + 1}</span>
+          <span class="menu__label" data-i18n="nav.${n.id}">${n.label}</span>
+          <span class="menu__go i i-arrow" aria-hidden="true"></span>
         </a>`).join("");
 
       this.innerHTML = `
@@ -85,6 +86,7 @@
                 <span data-i18n="ui.menu">Menu</span><span class="menu__bars" aria-hidden="true"><span></span><span></span></span>
               </button>
               <div class="menu__panel" id="site-menu">
+                <span class="menu__hl" aria-hidden="true"></span>
                 ${items}
                 <div class="menu__lang">${langSwitch}</div>
               </div>
@@ -128,7 +130,7 @@
               </ul>
             </div>
           </div>
-          <div class="footer-ack"><p data-i18n="footer.ack">We acknowledge that the University of Lethbridge is located on the traditional territory of the Blackfoot Confederacy, in Treaty 7 territory, and we honour the Blackfoot people and their long-standing relationship with this land and its skies.</p></div>
+          <div class="footer-ack"><p data-i18n="footer.ack">We acknowledge that the University of Lethbridge is located on the traditional territory of the Blackfoot Confederacy, in Treaty 7 territory, and we honour the Blackfoot people and their long-standing relationship with this land and its skies.</p><p class="footer-credit" data-i18n="footer.imagery">Imagery: NASA, ESA, CSA, STScI, JPL-Caltech. Home: Bubble Nebula (NGC 7635).</p></div>
           <div class="footer-bottom">
             <span>© ${year} PAMA · <span data-i18n="footer.uni">University of Lethbridge</span></span>
             <span class="lst" role="group" aria-label="Local sidereal time in Lethbridge" data-i18n-attr="aria-label:footer.lstLabel">
