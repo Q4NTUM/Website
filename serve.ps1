@@ -25,7 +25,8 @@ try {
     if ($path -eq '' -or $path.EndsWith('/')) { $path += 'index.html' }
     $file = [IO.Path]::GetFullPath((Join-Path $root $path))
     $status = 200
-    if (-not $file.StartsWith($root) -or -not (Test-Path $file -PathType Leaf)) {
+    # The trailing separator stops "..\live-other" from matching the root prefix
+    if (-not $file.StartsWith($root.TrimEnd('\') + '\') -or -not (Test-Path $file -PathType Leaf)) {
       $file = Join-Path $root '404.html'; $status = 404
     }
     $bytes = [IO.File]::ReadAllBytes($file)
