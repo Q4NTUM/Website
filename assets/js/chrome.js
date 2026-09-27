@@ -128,7 +128,7 @@
               </ul>
             </div>
           </div>
-          <div class="footer-ack"><p data-i18n="footer.ack">We acknowledge that the University of Lethbridge is located on the traditional territory of the Blackfoot Confederacy, in Treaty 7 territory, and we honour the Blackfoot people and their long-standing relationship with this land and its skies.</p></div>
+          <div class="footer-ack"><p data-i18n="footer.ack">We acknowledge that the University of Lethbridge is located on the traditional territory of the Blackfoot Confederacy, in Treaty 7 territory, and we honour the Blackfoot people and their long-standing relationship with this land and its skies.</p><p class="footer-credit" data-i18n="footer.imagery">Imagery: NASA, ESA, CSA, STScI, JPL-Caltech. Home: Bubble Nebula (NGC 7635).</p></div>
           <div class="footer-bottom">
             <span>© ${year} PAMA · <span data-i18n="footer.uni">University of Lethbridge</span></span>
             <span class="lst" role="group" aria-label="Local sidereal time in Lethbridge" data-i18n-attr="aria-label:footer.lstLabel">

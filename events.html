@@ -21,21 +21,35 @@
   <script src="assets/js/data.js" defer></script>
   <script src="assets/js/main.js" defer></script>
 </head>
-<body id="top">
+<body id="top" data-theme="events">
   <site-header active="events"></site-header>
 
   <div class="page">
     <main id="main">
 
-      <section class="page-hero" style="--hero-pos: 70% 20%">
-        <div class="container page-hero__inner">
+      <section class="page-hero" style="--gx: 80%; --gy: 35%">
+        <div class="page-hero__bg" style="background-image:url('assets/img/bg/pillars.jpg')" aria-hidden="true"></div>
+        <div class="container page-hero__grid">
           <div>
             <p class="eyebrow intro" data-i18n="events.hero.eyebrow">Events</p>
             <h1 class="h1 intro" style="--d:80ms" data-i18n="events.hero.title">Look up.<br>Show up.</h1>
             <p class="lead intro" style="--d:160ms" data-i18n="events.hero.lead">Talks, observing nights, workshops and socials — free, open to everyone, and no background required.</p>
+            <p class="page-hero__meta intro" style="--d:240ms"><span><span data-i18n="events.hero.upcoming">Upcoming</span><b data-upcoming-count>—</b></span><span><span data-i18n="events.hero.tz">Time zone</span><b data-i18n="events.hero.tzv">Mountain Time</b></span><span><span data-i18n="events.hero.cost">Cost</span><b data-i18n="events.hero.free">Free</b></span></p>
           </div>
-          <p class="page-hero__meta intro" style="--d:240ms"><span data-i18n="events.hero.upcoming">Upcoming</span> <b data-upcoming-count>—</b><br><span data-i18n="events.hero.tz">Time zone</span> <b data-i18n="events.hero.tzv">Mountain Time</b><br><span data-i18n="events.hero.cost">Cost</span> <b data-i18n="events.hero.free">Free</b></p>
+          <div class="page-hero__visual intro" style="--d:220ms">
+            <a class="countdown corner-ticks" href="#upcoming-title" data-countdown hidden>
+              <p class="label" data-cd-label>Next up</p>
+              <div class="countdown__digits" aria-hidden="true">
+                <div class="countdown__unit"><b data-cd="d">00</b><span data-i18n="events.cd.d">Days</span></div>
+                <div class="countdown__unit"><b data-cd="h">00</b><span data-i18n="events.cd.h">Hours</span></div>
+                <div class="countdown__unit"><b data-cd="m">00</b><span data-i18n="events.cd.m">Min</span></div>
+                <div class="countdown__unit"><b data-cd="s">00</b><span data-i18n="events.cd.s">Sec</span></div>
+              </div>
+              <div class="countdown__event"><div><strong data-cd-title>—</strong><small data-cd-when>—</small></div><span class="i i-arrow" aria-hidden="true"></span></div>
+            </a>
+          </div>
         </div>
+        <p class="page-hero__credit"><b data-i18n="credit.events">Pillars of Creation · Eagle Nebula (M16)</b> — NASA, ESA, Hubble Heritage Team</p>
       </section>
 
       <!-- Upcoming -->
@@ -62,10 +76,13 @@
       <!-- Recurring -->
       <section class="section" aria-labelledby="weekly-title">
         <div class="container">
-          <div class="section-head">
-            <p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="events.weekly.eyebrow">Every week</span></p>
-            <h2 class="h2 reveal" id="weekly-title" data-i18n="events.weekly.title">Regular orbits</h2>
-            <p class="lead reveal" data-i18n="events.weekly.lead">Drop in any week during the fall and winter terms. No sign-up needed.</p>
+          <div class="section-head section-head--row">
+            <div class="stack" style="--stack:1.25rem">
+              <p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="events.weekly.eyebrow">Every week</span></p>
+              <h2 class="h2 reveal" id="weekly-title" data-i18n="events.weekly.title">Regular orbits</h2>
+              <p class="lead reveal" data-i18n="events.weekly.lead">Drop in any week during the fall and winter terms. No sign-up needed.</p>
+            </div>
+            <div class="sky reveal" data-moon></div>
           </div>
           <div class="grid grid--3" data-stagger>
             <article class="card">
@@ -87,7 +104,6 @@
               <p data-i18n="events.weekly.c3.p">When the forecast is good, we announce a short-notice observing session on Instagram. Follow us so you don't miss it.</p>
             </article>
           </div>
-          <div class="sky reveal mt-m" data-moon></div>
           <p class="placeholder-note" data-i18n="events.weekly.note">Placeholder schedule — rooms and times to be confirmed each term</p>
         </div>
       </section>
@@ -95,11 +111,13 @@
       <!-- Archive -->
       <section class="section" aria-labelledby="past-title">
         <div class="container">
-          <div class="section-head">
-            <p class="eyebrow reveal"><span class="idx">03</span><span data-i18n="events.past.eyebrow">Archive</span></p>
-            <h2 class="h2 reveal" id="past-title" data-i18n="events.past.title">Past events</h2>
+          <div class="split">
+            <div class="split__aside stack" style="--stack:1.25rem">
+              <p class="eyebrow reveal"><span class="idx">03</span><span data-i18n="events.past.eyebrow">Archive</span></p>
+              <h2 class="h2 reveal" id="past-title" data-i18n="events.past.title">Past events</h2>
+            </div>
+            <div class="event-list reveal" data-events-past></div>
           </div>
-          <div class="event-list reveal" data-events-past></div>
         </div>
       </section>
 

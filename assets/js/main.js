@@ -69,9 +69,16 @@
   }
 
   /* ------------------------------------------------------------------
-     Starfield — the same seeded sky on every page (no jump between pages),
-     drawn once to an offscreen layer; only a few stars twinkle and the
-     slow upward drift from the original site runs at ~30 fps.
+     Starfield — a fixed canvas behind every page. The same seeded, static
+     sky everywhere (so nothing jumps between pages) plus a motion layer
+     that changes with the page, set by body[data-theme]:
+       home / default → drift    rising particles, from the original site
+       about          → orbit    dust circling a distant, unseen centre
+       events         → meteors  the occasional shooting star
+       team           → network  wandering stars linked into constellations
+       resources      → flares   Webb-style starbursts with diffraction spikes
+       news           → pulsar   radio rings sweeping out from a pulsar
+       join           → warp     stars streaming gently outward
   ------------------------------------------------------------------ */
   function mulberry32(a) {
     return function () {
@@ -80,6 +87,9 @@
       t2 = (t2 + Math.imul(t2 ^ (t2 >>> 7), 61 | t2)) ^ t2;
       return ((t2 ^ (t2 >>> 14)) >>> 0) / 4294967296;
     };
+  }
+  function accentRGB() {
+    return (getComputedStyle(document.body).getPropertyValue("--accent-rgb") || "158, 220, 255").trim();
   }
 
   function starfield() {
@@ -90,37 +100,213 @@
     const ctx = canvas.getContext("2d");
     const layer = document.createElement("canvas");
     const lctx = layer.getContext("2d");
-    let w = 0, h = 0, dpr = 1, lastW = 0, lastH = 0, twinklers = [], drifters = [], raf = 0, last = 0, lastDraw = 0;
+    const rgb = accentRGB();
+    const mode = { about: "orbit", events: "meteors", team: "network", resources: "flares", news: "pulsar", join: "warp" }[document.body.dataset.theme] || "drift";
+    let w = 0, h = 0, dpr = 1, lastW = 0, lastH = 0, twinklers = [], raf = 0, last = 0, lastDraw = 0;
+    const R = Math.random;
 
-    const sprite = document.createElement("canvas");
-    sprite.width = sprite.height = 32;
-    const sg = sprite.getContext("2d");
-    const grad = sg.createRadialGradient(16, 16, 0, 16, 16, 16);
-    grad.addColorStop(0, "rgba(255,255,255,1)");
-    grad.addColorStop(0.18, "rgba(255,255,255,.85)");
-    grad.addColorStop(0.45, "rgba(255,255,255,.18)");
-    grad.addColorStop(1, "rgba(255,255,255,0)");
-    sg.fillStyle = grad; sg.fillRect(0, 0, 32, 32);
+    // Gentle parallax: the sky shifts a few pixels against the pointer
+    const M = 18;
+    let ox = 0, oy = 0, tx = 0, ty = 0, px = -1e4, py = -1e4;
+    if (finePointer && !reduceMotion) {
+      window.addEventListener("pointermove", (e) => {
+        px = e.clientX; py = e.clientY;
+        tx = (e.clientX / w - 0.5) * -2 * (M - 4);
+        ty = (e.clientY / h - 0.5) * -2 * (M - 4);
+      }, { passive: true });
+    }
 
-    const spawn = (anywhere) => ({
-      x: Math.random() * w, y: anywhere ? Math.random() * h : h + 12,
-      r: Math.random() * 1.1 + 0.6,
-      v: h / (60 * (15 + Math.random() * 15)), // crosses the screen in 15–30 s, like the original
-      max: Math.random() * 0.45 + 0.35,
-    });
+    // Soft glow sprites (much cheaper than shadowBlur)
+    const makeSprite = (c) => {
+      const s = document.createElement("canvas");
+      s.width = s.height = 32;
+      const g = s.getContext("2d"), gr = g.createRadialGradient(16, 16, 0, 16, 16, 16);
+      gr.addColorStop(0, `rgba(${c},1)`); gr.addColorStop(0.18, `rgba(${c},.85)`);
+      gr.addColorStop(0.45, `rgba(${c},.18)`); gr.addColorStop(1, `rgba(${c},0)`);
+      g.fillStyle = gr; g.fillRect(0, 0, 32, 32);
+      return s;
+    };
+    const white = makeSprite("255,255,255"), tint = makeSprite(rgb);
+    const glow = (spr, x, y, size, a) => { ctx.globalAlpha = a; ctx.drawImage(spr, x - size / 2, y - size / 2, size, size); };
+    const count = (per, max) => Math.round(Math.min(max, (w * h) / per));
+
+    /* ---- Motion layers ---- */
+    let parts = [], extra = [], clock = 0;
+    const MODES = {
+      drift: {
+        spawn: (any) => ({ x: R() * w, y: any ? R() * h : h + 12, r: R() * 1.1 + 0.6, v: h / (60 * (15 + R() * 15)), max: R() * 0.45 + 0.35, c: R() < 0.25 }),
+        init() { parts = Array.from({ length: count(28000, 44) }, () => this.spawn(true)); },
+        step(dt) {
+          for (let i = 0; i < parts.length; i++) {
+            const p = parts[i];
+            p.y -= p.v * dt;
+            if (p.y < -12) { parts[i] = this.spawn(false); continue; }
+            const life = p.y / h;
+            glow(p.c ? tint : white, p.x + ox * 1.8, p.y + oy * 1.8, p.r * 7, Math.max(0, Math.min(p.max, Math.min(life, 1 - life) * 4 * p.max)));
+          }
+        },
+      },
+      orbit: {
+        init() {
+          const cx = w * 0.92, cy = -h * 0.35, far = Math.hypot(w, h) * 1.3;
+          parts = Array.from({ length: count(16000, 90) }, () => {
+            const rad = h * 0.35 + R() * far;
+            return { cx, cy, rad, a: R() * Math.PI * 2, s: (0.0004 + R() * 0.0006) * (500 / Math.max(300, rad)) * 1.6, r: R() * 1 + 0.5, al: R() * 0.5 + 0.2, c: R() < 0.35 };
+          });
+        },
+        step(dt) {
+          for (const p of parts) {
+            p.a += p.s * dt;
+            const x = p.cx + Math.cos(p.a) * p.rad, y = p.cy + Math.sin(p.a) * p.rad;
+            if (x < -20 || x > w + 20 || y < -20 || y > h + 20) continue;
+            glow(p.c ? tint : white, x + ox * 1.6, y + oy * 1.6, p.r * 6, p.al);
+          }
+        },
+      },
+      meteors: {
+        init() { parts = []; clock = 40; MODES.drift.init.call(MODES.drift); extra = parts.slice(0, 14); parts = []; },
+        step(dt) {
+          for (const p of extra) { p.y -= p.v * dt * 0.6; if (p.y < -12) p.y = h + 12; glow(white, p.x, p.y, p.r * 6, 0.35); }
+          clock -= dt;
+          if (clock <= 0) {
+            clock = 70 + R() * 200;
+            const ang = Math.PI * (0.72 + R() * 0.12); // heading down and to the left
+            parts.push({ x: w * (0.35 + R() * 0.75), y: -20 + R() * h * 0.35, vx: Math.cos(ang) * (9 + R() * 7), vy: Math.sin(ang) * (9 + R() * 7), len: 90 + R() * 120, life: 1, fade: 0.012 + R() * 0.01 });
+          }
+          parts = parts.filter((m) => m.life > 0);
+          for (const m of parts) {
+            m.x += m.vx * dt; m.y += m.vy * dt; m.life -= m.fade * dt;
+            const k = m.len / Math.hypot(m.vx, m.vy);
+            const g = ctx.createLinearGradient(m.x, m.y, m.x - m.vx * k, m.y - m.vy * k);
+            g.addColorStop(0, `rgba(255,255,255,${0.9 * m.life})`);
+            g.addColorStop(0.25, `rgba(${rgb},${0.5 * m.life})`);
+            g.addColorStop(1, `rgba(${rgb},0)`);
+            ctx.globalAlpha = 1; ctx.strokeStyle = g; ctx.lineWidth = 1.4; ctx.lineCap = "round";
+            ctx.beginPath(); ctx.moveTo(m.x, m.y); ctx.lineTo(m.x - m.vx * k, m.y - m.vy * k); ctx.stroke();
+            glow(white, m.x, m.y, 10, m.life);
+          }
+        },
+      },
+      network: {
+        init() {
+          parts = Array.from({ length: count(26000, 60) }, () => {
+            const a = R() * Math.PI * 2, v = 0.12 + R() * 0.18;
+            return { x: R() * w, y: R() * h, vx: Math.cos(a) * v, vy: Math.sin(a) * v, r: R() * 1 + 0.8 };
+          });
+        },
+        step(dt) {
+          const D = Math.min(170, Math.max(110, w / 9));
+          for (const p of parts) {
+            p.x += p.vx * dt; p.y += p.vy * dt;
+            if (p.x < -20) p.x = w + 20; if (p.x > w + 20) p.x = -20;
+            if (p.y < -20) p.y = h + 20; if (p.y > h + 20) p.y = -20;
+          }
+          ctx.lineWidth = 1;
+          for (let i = 0; i < parts.length; i++) {
+            const a = parts[i];
+            for (let j = i + 1; j < parts.length; j++) {
+              const b = parts[j], d = Math.hypot(a.x - b.x, a.y - b.y);
+              if (d > D) continue;
+              ctx.globalAlpha = (1 - d / D) * 0.22; ctx.strokeStyle = `rgb(${rgb})`;
+              ctx.beginPath(); ctx.moveTo(a.x + ox, a.y + oy); ctx.lineTo(b.x + ox, b.y + oy); ctx.stroke();
+            }
+            const dp = Math.hypot(a.x - px, a.y - py);
+            if (dp < D * 1.3) { // reach out to the pointer
+              ctx.globalAlpha = (1 - dp / (D * 1.3)) * 0.35; ctx.strokeStyle = `rgb(${rgb})`;
+              ctx.beginPath(); ctx.moveTo(a.x + ox, a.y + oy); ctx.lineTo(px, py); ctx.stroke();
+            }
+            glow(tint, a.x + ox, a.y + oy, a.r * 6, 0.8);
+          }
+        },
+      },
+      flares: {
+        init() { parts = []; clock = 20; MODES.drift.init.call(MODES.drift); extra = parts.slice(0, 18); parts = []; },
+        step(dt) {
+          for (const p of extra) { p.y -= p.v * dt * 0.5; if (p.y < -12) p.y = h + 12; glow(p.c ? tint : white, p.x + ox, p.y + oy, p.r * 6, 0.3); }
+          clock -= dt;
+          if (clock <= 0 && parts.length < 5) { clock = 35 + R() * 70; parts.push({ x: R() * w, y: R() * h, t: 0, size: 14 + R() * 28, dur: 150 + R() * 120, c: R() < 0.6 }); }
+          parts = parts.filter((f) => f.t < f.dur);
+          for (const f of parts) {
+            f.t += dt;
+            const k = f.t < 30 ? f.t / 30 : 1 - (f.t - 30) / (f.dur - 30);
+            const s = f.size * (0.6 + 0.4 * k), x = f.x + ox, y = f.y + oy, col = f.c ? rgb : "255,255,255";
+            ctx.lineWidth = 1; ctx.lineCap = "round";
+            // six long spikes (Webb's hexagonal mirror) + two short horizontal ones
+            for (let i = 0; i < 3; i++) {
+              const a = Math.PI / 2 + (i * Math.PI) / 3, dx = Math.cos(a) * s, dy = Math.sin(a) * s;
+              const g = ctx.createLinearGradient(x - dx, y - dy, x + dx, y + dy);
+              g.addColorStop(0, `rgba(${col},0)`); g.addColorStop(0.5, `rgba(${col},${0.85 * k})`); g.addColorStop(1, `rgba(${col},0)`);
+              ctx.globalAlpha = 1; ctx.strokeStyle = g;
+              ctx.beginPath(); ctx.moveTo(x - dx, y - dy); ctx.lineTo(x + dx, y + dy); ctx.stroke();
+            }
+            ctx.globalAlpha = 0.5 * k; ctx.strokeStyle = `rgb(${col})`;
+            ctx.beginPath(); ctx.moveTo(x - s * 0.35, y); ctx.lineTo(x + s * 0.35, y); ctx.stroke();
+            glow(f.c ? tint : white, x, y, s * 0.9, k);
+          }
+        },
+      },
+      pulsar: {
+        init() { parts = []; clock = 0; extra = [{ x: w * (w < 700 ? 0.8 : 0.84), y: h * 0.3 }]; },
+        step(dt) {
+          const p = extra[0], x = p.x + ox, y = p.y + oy, maxR = Math.hypot(w, h) * 0.75;
+          clock -= dt;
+          if (clock <= 0) { clock = 78; parts.push({ r: 4 }); }
+          parts = parts.filter((ring) => ring.r < maxR);
+          ctx.lineWidth = 1;
+          for (const ring of parts) {
+            ring.r += 1.6 * dt;
+            ctx.globalAlpha = 0.28 * (1 - ring.r / maxR); ctx.strokeStyle = `rgb(${rgb})`;
+            ctx.beginPath(); ctx.arc(x, y, ring.r, 0, 6.283); ctx.stroke();
+          }
+          // two lighthouse beams, slowly sweeping
+          const a = (performance.now() / 1000) * 0.35;
+          for (const s of [0, Math.PI]) {
+            const g = ctx.createLinearGradient(x, y, x + Math.cos(a + s) * maxR, y + Math.sin(a + s) * maxR);
+            g.addColorStop(0, `rgba(${rgb},.22)`); g.addColorStop(1, `rgba(${rgb},0)`);
+            ctx.globalAlpha = 1; ctx.fillStyle = g;
+            ctx.beginPath(); ctx.moveTo(x, y);
+            ctx.arc(x, y, maxR, a + s - 0.035, a + s + 0.035); ctx.closePath(); ctx.fill();
+          }
+          const beat = 0.6 + 0.4 * Math.max(0, 1 - (78 - clock) / 12);
+          glow(tint, x, y, 42 * beat, 0.9); glow(white, x, y, 12, 1);
+        },
+      },
+      warp: {
+        spawn: () => ({ x: (R() - 0.5) * 2, y: (R() - 0.5) * 2, z: 0.3 + R() * 0.7, pz: 0 }),
+        init() { parts = Array.from({ length: count(9000, 160) }, () => this.spawn()); parts.forEach((p) => { p.pz = p.z; }); },
+        step(dt) {
+          const cx = w / 2 + ox * 2, cy = h * 0.42 + oy * 2, f = Math.max(w, h) * 0.5;
+          ctx.lineCap = "round";
+          for (let i = 0; i < parts.length; i++) {
+            const p = parts[i];
+            p.pz = p.z; p.z -= 0.0018 * dt;
+            if (p.z <= 0.05) { parts[i] = this.spawn(); parts[i].z = parts[i].pz = 1; continue; }
+            const x = cx + (p.x / p.z) * f * 0.5, y = cy + (p.y / p.z) * f * 0.5;
+            const x0 = cx + (p.x / p.pz) * f * 0.5, y0 = cy + (p.y / p.pz) * f * 0.5;
+            if (x < -10 || x > w + 10 || y < -10 || y > h + 10) { parts[i] = this.spawn(); parts[i].z = parts[i].pz = 1; continue; }
+            const near = 1 - p.z;
+            ctx.globalAlpha = Math.min(0.85, near * 0.9); ctx.strokeStyle = i % 3 ? "rgb(235,240,255)" : `rgb(${rgb})`;
+            ctx.lineWidth = 0.6 + near * 1.4;
+            ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x, y); ctx.stroke();
+          }
+        },
+      },
+    };
+    const layerFx = MODES[mode];
 
     function buildSky() {
       // Seeded: identical star positions on every page load
       const rnd = mulberry32(0x9a3a);
-      layer.width = w * dpr; layer.height = h * dpr;
+      const lw = w + 2 * M, lh = h + 2 * M;
+      layer.width = lw * dpr; layer.height = lh * dpr;
       lctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      lctx.fillStyle = "#dfe8ff";
-      const count = Math.round((w * h) / 9000);
+      const n = Math.round((lw * lh) / 9000);
       twinklers = [];
-      for (let i = 0; i < count; i++) {
-        const s = { x: rnd() * w, y: rnd() * h, r: rnd() * 0.9 + 0.2, a: rnd() * 0.5 + 0.15, t: rnd() * 6.283, sp: rnd() * 0.012 + 0.003 };
-        if (i % Math.max(1, Math.round(count / 30)) === 0) { twinklers.push(s); continue; }
+      for (let i = 0; i < n; i++) {
+        const s = { x: rnd() * lw, y: rnd() * lh, r: rnd() * 0.9 + 0.2, a: rnd() * 0.5 + 0.15, t: rnd() * 6.283, sp: rnd() * 0.012 + 0.003 };
+        if (i % Math.max(1, Math.round(n / 30)) === 0) { twinklers.push(s); continue; }
         lctx.globalAlpha = s.a;
+        lctx.fillStyle = i % 9 === 0 ? `rgb(${rgb})` : "#dfe8ff"; // a few stars pick up the page colour
         lctx.beginPath(); lctx.arc(s.x, s.y, s.r, 0, 6.283); lctx.fill();
       }
       lctx.globalAlpha = 1;
@@ -134,7 +320,7 @@
       // Mobile toolbars change the height while scrolling — only rebuild on real changes
       if (w !== lastW || Math.abs(h - lastH) > 120 || !twinklers.length) {
         buildSky();
-        drifters = Array.from({ length: Math.round(Math.min(44, (w * h) / 28000)) }, () => spawn(true));
+        layerFx.init();
         lastW = w; lastH = h;
       }
       frame(0);
@@ -142,22 +328,17 @@
 
     function frame(dt) {
       ctx.clearRect(0, 0, w, h);
-      ctx.drawImage(layer, 0, 0, w, h);
+      ox += (tx - ox) * 0.06; oy += (ty - oy) * 0.06;
+      const bx = ox - M, by = oy - M;
+      ctx.globalAlpha = 1;
+      ctx.drawImage(layer, bx, by, w + 2 * M, h + 2 * M);
       ctx.fillStyle = "#dfe8ff";
       for (const s of twinklers) {
         s.t += s.sp * dt;
         ctx.globalAlpha = s.a * (0.55 + 0.45 * Math.sin(s.t));
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r + 0.15, 0, 6.283); ctx.fill();
+        ctx.beginPath(); ctx.arc(s.x + bx, s.y + by, s.r + 0.15, 0, 6.283); ctx.fill();
       }
-      for (let i = 0; i < drifters.length; i++) {
-        const p = drifters[i];
-        p.y -= p.v * dt;
-        if (p.y < -12) { drifters[i] = spawn(false); continue; }
-        const life = p.y / h; // fade in at the bottom, out at the top
-        ctx.globalAlpha = Math.max(0, Math.min(p.max, Math.min(life, 1 - life) * 4 * p.max));
-        const size = p.r * 7;
-        ctx.drawImage(sprite, p.x - size / 2, p.y - size / 2, size, size);
-      }
+      layerFx.step(dt);
       ctx.globalAlpha = 1;
     }
 
@@ -269,7 +450,15 @@
     const els = $$(".reveal:not(.is-in)", root);
     if (reduceMotion || !("IntersectionObserver" in window)) { els.forEach((e) => e.classList.add("is-in")); return; }
     io = io || new IntersectionObserver((entries) => {
-      entries.forEach((en) => { if (en.isIntersecting) { en.target.classList.add("is-in"); io.unobserve(en.target); } });
+      entries.forEach((en) => {
+        if (!en.isIntersecting) return;
+        en.target.classList.add("is-in");
+        io.unobserve(en.target);
+        if (en.target.classList.contains("eyebrow")) {
+          const txt = en.target.querySelector("span:not(.idx)") || en.target;
+          if (!txt.children.length) setTimeout(() => scramble(txt, 700), +(en.target.style.getPropertyValue("--d") || "0").replace("ms", "") + 150);
+        }
+      });
     }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
     els.forEach((e) => io.observe(e));
   }
@@ -297,7 +486,7 @@
   ------------------------------------------------------------------ */
   const ART = {
     orbit: () => `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <defs><radialGradient id="g-o" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#9edcff" stop-opacity=".35"/><stop offset="1" stop-color="#9edcff" stop-opacity="0"/></radialGradient></defs>
+        <defs><radialGradient id="g-o" cx="50%" cy="50%" r="50%"><stop offset="0" style="stop-color:var(--accent)" stop-opacity=".35"/><stop offset="1" style="stop-color:var(--accent)" stop-opacity="0"/></radialGradient></defs>
         <circle cx="160" cy="100" r="60" fill="url(#g-o)"/>
         <g fill="none" stroke="rgba(255,255,255,.22)" stroke-width=".8">
           <ellipse cx="160" cy="100" rx="120" ry="34" transform="rotate(-14 160 100)"/>
@@ -305,7 +494,7 @@
           <ellipse cx="160" cy="100" rx="150" ry="52" transform="rotate(-14 160 100)" stroke-dasharray="2 5"/>
         </g>
         <circle cx="160" cy="100" r="7" fill="#eceef4"/>
-        <g transform="rotate(-14 160 100)"><circle r="3" fill="#9edcff"><animateMotion dur="16s" repeatCount="indefinite" path="M280 100a120 34 0 1 1-240 0a120 34 0 1 1 240 0"/></circle></g>
+        <g transform="rotate(-14 160 100)"><circle r="3" style="fill:var(--accent)"><animateMotion dur="16s" repeatCount="indefinite" path="M280 100a120 34 0 1 1-240 0a120 34 0 1 1 240 0"/></circle></g>
       </svg>`,
     wave() {
       let d1 = "", d2 = "";
@@ -317,13 +506,13 @@
       return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <path d="M0 100H320" stroke="rgba(255,255,255,.12)"/>
         <path d="${d2}" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1"/>
-        <path d="${d1}" fill="none" stroke="#9edcff" stroke-width="1.2"/></svg>`;
+        <path d="${d1}" fill="none" style="stroke:var(--accent)" stroke-width="1.2"/></svg>`;
     },
     lattice() {
       let g = "";
       for (let i = 0; i < 9; i++) for (let j = 0; j < 6; j++) {
         const x = 20 + i * 36 + (j % 2) * 18, y = 18 + j * 34, d = Math.hypot(x - 160, y - 100);
-        g += `<circle cx="${x}" cy="${y}" r="${(2.6 - d / 110).toFixed(2)}" fill="${d < 60 ? "#9edcff" : "rgba(255,255,255,.4)"}"/>`;
+        g += `<circle cx="${x}" cy="${y}" r="${(2.6 - d / 110).toFixed(2)}" style="fill:${d < 60 ? "var(--accent)" : "rgba(255,255,255,.4)"}"/>`;
       }
       return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
         <g stroke="rgba(255,255,255,.08)">${Array.from({ length: 9 }, (_, i) => `<path d="M${20 + i * 36} 0V200"/>`).join("")}</g>${g}</svg>`;
@@ -336,14 +525,14 @@
         d += (a ? "L" : "M") + (160 + r * Math.cos(a)).toFixed(1) + " " + (100 + r * Math.sin(a)).toFixed(1);
       }
       return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <path d="${d}" fill="none" stroke="#9edcff" stroke-width="1"/>
+        <path d="${d}" fill="none" style="stroke:var(--accent)" stroke-width="1"/>
         <g fill="none" stroke="rgba(255,255,255,.1)"><circle cx="160" cy="100" r="30"/><circle cx="160" cy="100" r="70"/><circle cx="160" cy="100" r="110"/></g></svg>`;
     },
     constellation() {
       const pts = [[40, 140], [86, 96], [128, 118], [170, 62], [214, 84], [256, 40], [282, 128], [214, 150]];
       const lines = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [4, 6], [6, 7], [7, 2]];
       return `<svg viewBox="0 0 320 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-        <g stroke="rgba(158,220,255,.4)" stroke-width=".8">${lines.map(([a, b]) => `<line x1="${pts[a][0]}" y1="${pts[a][1]}" x2="${pts[b][0]}" y2="${pts[b][1]}"/>`).join("")}</g>
+        <g style="stroke:rgba(var(--accent-rgb),.4)" stroke-width=".8">${lines.map(([a, b]) => `<line x1="${pts[a][0]}" y1="${pts[a][1]}" x2="${pts[b][0]}" y2="${pts[b][1]}"/>`).join("")}</g>
         ${pts.map(([x, y], i) => `<circle cx="${x}" cy="${y}" r="${i % 3 ? 2 : 3}" fill="#eceef4"/>`).join("")}</svg>`;
     },
     lissajous() {
@@ -362,11 +551,11 @@
       }
       return `<svg viewBox="0 0 320 200" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width=".8" opacity=".75">${g}<path d="M104 100H216"/></g>
         <circle cx="100" cy="100" r="7" fill="#04060c" stroke="currentColor"/><path d="M96 100h8M100 96v8" stroke="currentColor"/>
-        <circle cx="220" cy="100" r="7" fill="#04060c" stroke="#9edcff"/><path d="M216 100h8" stroke="#9edcff"/></svg>`;
+        <circle cx="220" cy="100" r="7" fill="#04060c" style="stroke:var(--accent)"/><path d="M216 100h8" style="stroke:var(--accent)"/></svg>`;
     },
     ellipses: () => `<svg viewBox="0 0 320 200" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width=".8">
         <ellipse cx="160" cy="100" rx="130" ry="40" opacity=".4"/><ellipse cx="160" cy="100" rx="90" ry="28" opacity=".7"/><ellipse cx="160" cy="100" rx="48" ry="15"/></g>
-        <circle cx="160" cy="100" r="9" fill="currentColor"/><circle r="3.5" fill="#9edcff"><animateMotion dur="12s" repeatCount="indefinite" path="M250 100a90 28 0 1 1-180 0a90 28 0 1 1 180 0"/></circle></svg>`,
+        <circle cx="160" cy="100" r="9" fill="currentColor"/><circle r="3.5" style="fill:var(--accent)"><animateMotion dur="12s" repeatCount="indefinite" path="M250 100a90 28 0 1 1-180 0a90 28 0 1 1 180 0"/></circle></svg>`,
   };
   const stripMotion = (root = document) => { if (reduceMotion) $$("animateMotion", root).forEach((m) => m.remove()); };
   function art(root = document) {
@@ -671,7 +860,7 @@
     nav.innerHTML = list.map((_, k) => `<button class="equation__dot" type="button" data-eq="${k}"></button>`).join("");
     const dots = $$(".equation__dot", nav);
     const label = () => dots.forEach((d, k) => d.setAttribute("aria-label", t("eq.show", "Show equation {n}").replace("{n}", k + 1)));
-    const paint = () => { f.innerHTML = list[idx].html; c.textContent = I18N.pick(list[idx], "caption"); };
+    const paint = () => { f.innerHTML = `<span class="equation__math">${list[idx].html}</span>`; c.textContent = I18N.pick(list[idx], "caption"); };
     const show = (k, instant) => {
       idx = (k + list.length) % list.length;
       dots.forEach((d, j) => d.setAttribute("aria-current", String(j === idx)));
@@ -731,6 +920,223 @@
   }
 
   /* ------------------------------------------------------------------
+     Text decode — characters resolve left to right from symbol noise
+  ------------------------------------------------------------------ */
+  const NOISE = "ΦΣΩΔπ∂∇λμ∫≈01<>/+*#";
+  function scramble(el, duration = 900) {
+    if (!el || reduceMotion) return;
+    if (el._scrambling) cancelAnimationFrame(el._scrambling);
+    const target = el.textContent;
+    const t0 = performance.now();
+    const step = (now) => {
+      const k = Math.min(1, (now - t0) / duration);
+      const solved = Math.floor(target.length * k);
+      let out = target.slice(0, solved);
+      for (let i = solved; i < target.length; i++) {
+        const ch = target[i];
+        out += ch === " " || ch === " " ? ch : NOISE[(Math.random() * NOISE.length) | 0];
+      }
+      el.textContent = out;
+      if (k < 1) el._scrambling = requestAnimationFrame(step);
+      else { el.textContent = target; el._scrambling = 0; }
+    };
+    el._scrambling = requestAnimationFrame(step);
+  }
+
+  /* ------------------------------------------------------------------
+     Landing intro: only the logo, until the visitor scrolls, taps,
+     clicks or presses a key. The first gesture reveals the page instead
+     of scrolling it.
+  ------------------------------------------------------------------ */
+  function landing() {
+    const title = $("[data-scramble]");
+    if (!html.classList.contains("is-intro")) { if (title) setTimeout(() => scramble(title, 1100), 150); return; }
+    if (window.scrollY > 10) { html.classList.remove("is-intro"); return; }
+    const SCROLL_KEYS = [" ", "PageDown", "ArrowDown", "End", "Enter"];
+    let done = false, lockUntil = 0;
+    const block = (e) => { if (performance.now() < lockUntil) e.preventDefault(); };
+    function end(e) {
+      if (done) return;
+      done = true;
+      if (e && e.cancelable && (e.type === "wheel" || e.type === "touchmove" || (e.type === "keydown" && SCROLL_KEYS.includes(e.key)))) e.preventDefault();
+      lockUntil = performance.now() + 800; // swallow the rest of that wheel/swipe gesture
+      html.classList.remove("is-intro");
+      try { sessionStorage.setItem("pama-intro", "1"); } catch (err) { /* ignore */ }
+      if (title) setTimeout(() => scramble(title, 1200), 120);
+      ["wheel", "keydown", "pointerdown", "focusin"].forEach((t2) => window.removeEventListener(t2, end, true));
+      window.removeEventListener("touchmove", end, { capture: true });
+      window.removeEventListener("scroll", end);
+      setTimeout(() => { window.removeEventListener("wheel", block); window.removeEventListener("touchmove", block); }, 900);
+    }
+    window.addEventListener("wheel", end, { capture: true, passive: false });
+    window.addEventListener("touchmove", end, { capture: true, passive: false });
+    window.addEventListener("wheel", block, { passive: false });
+    window.addEventListener("touchmove", block, { passive: false });
+    ["keydown", "pointerdown", "focusin"].forEach((t2) => window.addEventListener(t2, end, true));
+    window.addEventListener("scroll", end);
+  }
+
+  /* Keyword ticker: duplicate the list once so the loop is seamless */
+  function ticker() {
+    const list = $("[data-ticker]");
+    if (!list) return;
+    const track = list.parentElement;
+    $$(".ticker__list[data-clone]", track).forEach((n) => n.remove());
+    const clone = list.cloneNode(true);
+    clone.removeAttribute("data-i18n"); clone.removeAttribute("data-ticker");
+    clone.setAttribute("data-clone", "");
+    track.appendChild(clone);
+  }
+
+  /* Events hero: live countdown to the next event */
+  let cdTimer;
+  function countdown() {
+    const box = $("[data-countdown]");
+    if (!box) return;
+    const ev = upcoming[0];
+    if (!ev) { box.hidden = true; return; }
+    box.hidden = false;
+    box.href = "#" + evId(ev);
+    $("[data-cd-title]", box).textContent = I18N.pick(ev, "title");
+    $("[data-cd-when]", box).textContent = `${dayMonth(ev.s)} · ${clock(ev.s)} · ${I18N.pick(ev, "location")}`;
+    const out = { d: $('[data-cd="d"]', box), h: $('[data-cd="h"]', box), m: $('[data-cd="m"]', box), s: $('[data-cd="s"]', box) };
+    const label = $("[data-cd-label]", box);
+    const pad = (n) => String(n).padStart(2, "0");
+    const tick = () => {
+      const now = Date.now();
+      const live = now >= ev.s && now < ev.e;
+      label.textContent = live ? t("events.live", "Happening now") : t("events.next", "Next up");
+      const diff = Math.max(0, ev.s - now);
+      out.d.textContent = pad(Math.floor(diff / 864e5));
+      out.h.textContent = pad(Math.floor(diff / 36e5) % 24);
+      out.m.textContent = pad(Math.floor(diff / 6e4) % 60);
+      out.s.textContent = pad(Math.floor(diff / 1e3) % 60);
+    };
+    clearInterval(cdTimer);
+    tick();
+    cdTimer = setInterval(tick, 1000);
+  }
+
+  /* Team hero: a constellation of the people on the page */
+  function constellation() {
+    const root = $("[data-constellation]");
+    if (!root) return;
+    const svg = $("svg", root), tip = $("[data-const-tip]", root);
+    const people = $$("[data-person]");
+    const P = [[70, 72], [150, 40], [236, 88], [312, 50], [356, 138], [268, 170], [128, 166], [52, 236], [186, 250], [312, 252]];
+    const L = [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 2], [2, 6], [6, 0], [6, 7], [6, 8], [8, 9], [9, 5]];
+    const NS = "http://www.w3.org/2000/svg";
+    const mk = (tag, attrs) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); return n; };
+    svg.innerHTML = "";
+    L.forEach(([a, b], i) => {
+      if (!P[a] || !P[b] || !people[a] || !people[b]) return;
+      const ln = mk("line", { x1: P[a][0], y1: P[a][1], x2: P[b][0], y2: P[b][1], pathLength: 1 });
+      ln.style.animationDelay = 300 + i * 90 + "ms";
+      svg.appendChild(ln);
+    });
+    const info = (el) => ({
+      name: ($(".person__name", el) || $(".person__name-sm", el)).textContent.trim(),
+      role: ($(".person__role", el) || $("small", el)).textContent.trim(),
+    });
+    let active = null;
+    const light = (el, on) => { if (el) el.classList.toggle("is-lit", on); };
+    people.slice(0, P.length).forEach((el, i) => {
+      const [x, y] = P[i];
+      const g = mk("g", { class: "star" + (el.hasAttribute("data-grad") ? " star--grad" : ""), tabindex: "0", role: "button" });
+      g.appendChild(mk("circle", { class: "halo", cx: x, cy: y, r: 16 }));
+      const c = mk("circle", { cx: x, cy: y, r: el.hasAttribute("data-grad") ? 3 : 4 });
+      c.style.animationDelay = (i * 370) % 2400 + "ms";
+      g.appendChild(c);
+      const label = mk("text", { x: x + 10, y: y - 9 });
+      label.textContent = $(".person__avatar", el).textContent.trim();
+      g.appendChild(label);
+      const show = () => {
+        const p = info(el);
+        g.setAttribute("aria-label", `${p.name} — ${p.role}`);
+        tip.innerHTML = `<strong>${esc(p.name)}</strong><span>${esc(p.role)}</span>`;
+        if (active && active !== g) active.classList.remove("is-active");
+        active = g; g.classList.add("is-active");
+        light(el, true);
+      };
+      const hide = () => { g.classList.remove("is-active"); light(el, false); };
+      const go = () => {
+        el.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+        light(el, true); setTimeout(() => light(el, false), 1800);
+      };
+      g.addEventListener("pointerenter", show);
+      g.addEventListener("pointerleave", hide);
+      g.addEventListener("focus", show);
+      g.addEventListener("blur", hide);
+      g.addEventListener("click", (e) => { if (e.pointerType === "touch" && active !== g) { show(); return; } go(); });
+      g.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); go(); } });
+      g.setAttribute("aria-label", `${info(el).name} — ${info(el).role}`);
+      svg.appendChild(g);
+    });
+  }
+
+  /* Resources hero: live counts per section */
+  function dirCounts() {
+    $$("[data-dir-count]").forEach((el) => {
+      const group = document.getElementById(el.dataset.dirCount);
+      if (group) el.textContent = String($$(".res, .card", group).length).padStart(2, "0");
+    });
+  }
+
+  /* News hero: an oscilloscope trace */
+  function scope() {
+    const box = $("[data-scope]");
+    if (!box) return;
+    const canvas = $("canvas", box), ctx = canvas.getContext("2d");
+    const latest = $("[data-scope-latest]", box), count = $("[data-scope-count]", box);
+    const readout = () => {
+      if (posts[0]) latest.textContent = longDate(posts[0].date);
+      count.textContent = String(posts.length).padStart(2, "0");
+    };
+    readout();
+    document.addEventListener("pama:lang", readout);
+    let w, h, raf = 0, visible = true, lastDraw = 0;
+    const size = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = box.clientWidth; h = box.clientHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    const draw = (time) => {
+      ctx.clearRect(0, 0, w, h);
+      // graticule
+      ctx.strokeStyle = "rgba(255,255,255,.06)"; ctx.lineWidth = 1;
+      for (let i = 1; i < 10; i++) { const x = Math.round((w / 10) * i) + 0.5; ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke(); }
+      for (let j = 1; j < 6; j++) { const y = Math.round((h / 6) * j) + 0.5; ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke(); }
+      ctx.strokeStyle = "rgba(255,255,255,.14)";
+      ctx.beginPath(); ctx.moveTo(0, h * 0.45 + 0.5); ctx.lineTo(w, h * 0.45 + 0.5); ctx.stroke();
+      // trace: a carrier with a travelling pulse
+      const tt = time / 1000, mid = h * 0.45, amp = h * 0.24;
+      const trace = (alpha, width, phase) => {
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += 2) {
+          const u = x / w;
+          const env = Math.exp(-Math.pow(((u - ((tt * 0.12 + phase) % 1.4) + 0.2) * 6), 2));
+          const y = mid + Math.sin(u * 26 - tt * 2.2) * amp * (0.18 + env * 0.82) + Math.sin(u * 7 + tt) * amp * 0.08;
+          x ? ctx.lineTo(x, y) : ctx.moveTo(x, y);
+        }
+        ctx.strokeStyle = `rgba(${accentRGB()},${alpha})`; ctx.lineWidth = width; ctx.stroke();
+      };
+      trace(0.15, 5, 0);
+      trace(0.95, 1.4, 0);
+    };
+    const loop = (now) => {
+      raf = requestAnimationFrame(loop);
+      if (!visible || now - lastDraw < 32) return;
+      lastDraw = now; draw(now);
+    };
+    size(); draw(2600);
+    window.addEventListener("resize", () => { size(); draw(performance.now()); });
+    if (reduceMotion) return;
+    new IntersectionObserver((en) => { visible = en[0].isIntersecting; }).observe(box);
+    raf = requestAnimationFrame(loop);
+  }
+
+  /* ------------------------------------------------------------------
      Page transitions: native cross-document View Transitions where
      supported (see style.css); a short JS fade elsewhere.
   ------------------------------------------------------------------ */
@@ -758,7 +1164,7 @@
   }
   function relang() {
     document.addEventListener("pama:lang", () => {
-      [buildFormats, renderEvents, renderNews, moon].forEach(safe);
+      [buildFormats, renderEvents, renderNews, moon, ticker, countdown].forEach(safe);
       reveal();
     });
   }
@@ -769,6 +1175,7 @@
     [
       () => I18N.apply(), initData, buildFormats, starfield, header, menu, art,
       renderEvents, eventsUI, renderNews, newsDeepLink, equations, moon, lst,
+      landing, ticker, countdown, constellation, dirCounts, scope,
       reveal, spotlight, transitions, toTop, relang,
     ].forEach(safe);
     html.classList.add("js-ready");
