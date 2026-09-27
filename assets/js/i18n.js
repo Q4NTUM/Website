@@ -37,6 +37,7 @@
   root.lang = lang;
 
   const dict = () => (lang === "fr" && window.PAMA_FR) || {};
+  let pending = null;
   const ready = () => lang === "en" || !!window.PAMA_FR;
 
   function loadFR() {
@@ -85,7 +86,7 @@
       });
     });
     document.querySelectorAll("[data-lang]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lang === lang)));
-    root.lang = lang;
+    root.lang = lang === "fr" && !window.PAMA_FR ? "en" : lang; // if French failed to load, the page is still English
     if (ready()) root.classList.remove("i18n-pending");
   }
   const announce = () => document.dispatchEvent(new CustomEvent("pama:lang", { detail: { lang } }));
@@ -101,16 +102,28 @@
     apply,
     async set(next) {
       next = next === "fr" ? "fr" : "en";
-      if (next === lang) return;
+      if (next === (pending || lang)) return;
+      pending = next; // quick EN → FR → EN clicks: the last one wins
       try { localStorage.setItem(KEY, next); } catch (e) { /* ignore */ }
       root.classList.add("lang-swap");               // brief fade while text changes
       await Promise.all([next === "fr" ? loadFR() : null, new Promise((r) => setTimeout(r, 170))]);
+      if (pending !== next) return;
+      pending = null;
+      if (next === "fr" && !window.PAMA_FR) { root.classList.remove("lang-swap"); return; } // French failed to load
       lang = next;
       apply();
       announce();
       requestAnimationFrame(() => root.classList.remove("lang-swap"));
     },
   };
+
+  // Back/forward cache: a restored page follows the language chosen since
+  window.addEventListener("pageshow", (e) => {
+    if (!e.persisted) return;
+    let saved = null;
+    try { saved = localStorage.getItem(KEY); } catch (err) { /* ignore */ }
+    if ((saved === "fr" || saved === "en") && saved !== lang) window.PAMA_I18N.set(saved);
+  });
 
   document.addEventListener("click", (e) => {
     const b = e.target.closest && e.target.closest("[data-lang]");

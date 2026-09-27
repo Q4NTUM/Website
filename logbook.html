@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="meta.logbook.title">Logbook — PAMA · University of Lethbridge</title>
+  <meta name="description" content="Photos from PAMA observing nights, eclipses, meteor showers and club events at the University of Lethbridge." data-i18n-attr="content:meta.logbook.desc">
+  <meta name="theme-color" content="#04060c">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PAMA">
+  <meta property="og:title" content="The PAMA Logbook">
+  <meta property="og:description" content="Photos from observing nights, eclipses, meteor showers and everything in between.">
+  <meta property="og:url" content="https://ulethpama.space/logbook.html">
+  <meta property="og:image" content="https://ulethpama.space/assets/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ulethpama.space/logbook.html">
+  <link rel="preload" as="image" href="assets/img/bg/star-trails.jpg" fetchpriority="high">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/chrome.js"></script>
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+</head>
+<body id="top" data-theme="logbook">
+  <site-header active="logbook"></site-header>
+
+  <div class="page">
+    <main id="main">
+
+      <section class="page-hero" style="--gx: 70%; --gy: 45%">
+        <div class="page-hero__bg" style="background-image:url('assets/img/bg/star-trails.jpg')" aria-hidden="true"></div>
+        <div class="container page-hero__grid">
+          <div>
+            <p class="eyebrow intro" data-i18n="log.hero.eyebrow">Logbook</p>
+            <h1 class="h1 intro" style="--d:80ms" data-i18n="log.hero.title">Nights worth <em>remembering</em>.</h1>
+            <p class="lead intro" style="--d:160ms" data-i18n="log.hero.lead">Observing nights, eclipses, meteor showers and everything in between — photographed by members, one exposure at a time.</p>
+            <p class="page-hero__meta intro" style="--d:240ms"><span><span data-i18n="log.hero.entries">Entries</span><b data-log-count>08</b></span><span><span data-i18n="log.hero.since">Since</span><b>2026</b></span></p>
+          </div>
+          <div class="page-hero__visual intro" style="--d:220ms" aria-hidden="true">
+            <div class="instrument exposure corner-ticks">
+              <div class="instrument__bar"><span data-i18n="inst.log">Fig. 08 — Exposure</span><span class="instrument__status" data-exposure-status>Shutter open</span></div>
+              <div class="instrument__body">
+                <svg class="aperture" viewBox="-100 -100 200 200" data-aperture>
+                  <circle r="96" fill="none" stroke="rgba(255,255,255,.18)"/>
+                  <circle r="88" fill="none" stroke="rgba(255,255,255,.08)" stroke-dasharray="1 5"/>
+                  <g class="aperture__blades"></g>
+                  <circle r="80" fill="none" style="stroke:rgba(var(--accent-rgb),.35)"/>
+                </svg>
+                <dl class="exposure__read">
+                  <div><dt>ISO</dt><dd>3200</dd></div>
+                  <div><dt data-i18n="log.aperture">Aperture</dt><dd>ƒ/2.8</dd></div>
+                  <div><dt data-i18n="log.shutter">Shutter</dt><dd>30 s</dd></div>
+                  <div><dt data-i18n="log.lens">Lens</dt><dd>14 mm</dd></div>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="page-hero__credit"><b data-i18n="credit.logbook">Star trails over Earth, from the Space Station</b> — NASA / Don Pettit</p>
+      </section>
+
+      <section class="section" aria-labelledby="frames-title">
+        <div class="container">
+          <div class="section-head section-head--row">
+            <div class="stack" style="--stack:1.25rem">
+              <p class="eyebrow reveal"><span class="idx">01</span><span data-i18n="log.frames.eyebrow">Recent frames</span></p>
+              <h2 class="h2 reveal" id="frames-title" data-i18n="log.frames.title">From the club's cameras</h2>
+            </div>
+            <p class="placeholder-note reveal" data-i18n="log.note">Placeholder photos: NASA public-domain images, standing in until members' own shots are added</p>
+          </div>
+          <div class="gallery" data-gallery></div>
+        </div>
+      </section>
+
+      <section class="section cta" aria-labelledby="submit-title">
+        <svg class="cta__orbit" viewBox="0 0 400 400" fill="none" aria-hidden="true"><circle cx="200" cy="200" r="120" stroke="currentColor" stroke-dasharray="2 6"/><circle cx="200" cy="200" r="190" stroke="currentColor"/><g class="spin"><circle cx="390" cy="200" r="3" style="fill:var(--accent)"/></g></svg>
+        <div class="container">
+          <p class="eyebrow eyebrow--plain reveal" data-i18n="log.cta.eyebrow">Got a shot?</p>
+          <h2 class="h1 cta__title reveal" id="submit-title" data-i18n="log.cta.title">Add your photo to the logbook.</h2>
+          <p class="lead reveal" data-i18n="log.cta.lead">Phone snaps through an eyepiece count. Send it to us on Instagram with a line about the night, and we'll post it here with your name.</p>
+          <div class="btn-row reveal">
+            <a class="btn btn--solid" href="https://www.instagram.com/uleth.pama/" data-link="instagram" target="_blank" rel="noopener"><span data-i18n="log.cta.btn">Send us your photo</span> <span class="i i-out" aria-hidden="true"></span></a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+    <site-footer></site-footer>
+  </div>
+
+  <dialog class="lightbox" data-lightbox aria-label="Photo viewer" data-i18n-attr="aria-label:log.viewer">
+    <figure class="lightbox__fig">
+      <img alt="" data-lb-img>
+      <figcaption class="lightbox__cap">
+        <span class="lightbox__count" data-lb-count>01 / 08</span>
+        <b data-lb-title></b>
+        <span data-lb-text></span>
+        <small data-lb-meta></small>
+      </figcaption>
+    </figure>
+    <button class="lightbox__btn lightbox__btn--close" type="button" data-lb-close aria-label="Close" data-i18n-attr="aria-label:ui.close"><span aria-hidden="true"></span></button>
+    <button class="lightbox__btn lightbox__btn--prev" type="button" data-lb-step="-1" aria-label="Previous photo" data-i18n-attr="aria-label:log.prev"><span class="i i-arrow" aria-hidden="true"></span></button>
+    <button class="lightbox__btn lightbox__btn--next" type="button" data-lb-step="1" aria-label="Next photo" data-i18n-attr="aria-label:log.next"><span class="i i-arrow" aria-hidden="true"></span></button>
+  </dialog>
+</body>
+</html>

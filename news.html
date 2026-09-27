@@ -10,6 +10,13 @@
   <meta property="og:site_name" content="PAMA">
   <meta property="og:title" content="PAMA News">
   <meta property="og:description" content="Announcements, event recaps and stories from the club.">
+  <meta property="og:url" content="https://ulethpama.space/news.html">
+  <meta property="og:image" content="https://ulethpama.space/assets/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ulethpama.space/news.html">
+  <link rel="preload" as="image" href="assets/img/bg/crab.jpg" fetchpriority="high">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,20 +28,28 @@
   <script src="assets/js/data.js" defer></script>
   <script src="assets/js/main.js" defer></script>
 </head>
-<body id="top">
+<body id="top" data-theme="news">
   <site-header active="news"></site-header>
 
   <div class="page">
     <main id="main">
 
-      <section class="page-hero" style="--hero-pos: 80% 50%">
-        <div class="container page-hero__inner">
+      <section class="page-hero" style="--gx: 78%; --gy: 40%">
+        <div class="page-hero__bg" style="background-image:url('assets/img/bg/crab.jpg')" aria-hidden="true"></div>
+        <div class="container page-hero__grid">
           <div>
             <p class="eyebrow intro" data-i18n="news.hero.eyebrow">News</p>
-            <h1 class="h1 intro" style="--d:80ms" data-i18n="news.hero.title">Transmissions.</h1>
+            <h1 class="h1 intro" style="--d:80ms" data-i18n="news.hero.title"><em>Transmissions</em>.</h1>
             <p class="lead intro" style="--d:160ms" data-i18n="news.hero.lead">Announcements, event recaps and stories from the club. For day-to-day updates, follow us on Instagram.</p>
           </div>
+          <div class="page-hero__visual intro" style="--d:220ms">
+            <div class="scope corner-ticks" data-scope aria-hidden="true">
+              <canvas></canvas>
+              <p class="scope__readout"><span><span data-i18n="news.scope.latest">Latest</span> <b data-scope-latest>—</b></span><span><span data-i18n="news.scope.posts">Posts</span> <b data-scope-count>—</b></span></p>
+            </div>
+          </div>
         </div>
+        <p class="page-hero__credit"><b data-i18n="credit.news">Crab Nebula (M1) · a pulsar remnant</b> — NASA, ESA, J. Hester (ASU)</p>
       </section>
 
       <section class="section" aria-labelledby="all-title">
@@ -53,7 +68,7 @@
           <h2 class="h1 cta__title reveal" id="follow-title" data-i18n="news.cta.title">Never miss a clear night.</h2>
           <p class="lead reveal" data-i18n="news.cta.lead">Short-notice observing sessions and event reminders go out on Instagram first.</p>
           <div class="btn-row reveal">
-            <a class="btn btn--solid" data-link="instagram" target="_blank" rel="noopener"><span data-i18n="news.cta.btn">Follow @uleth.pama</span> <span class="i i-out" aria-hidden="true"></span></a>
+            <a class="btn btn--solid" href="https://www.instagram.com/uleth.pama/" data-link="instagram" target="_blank" rel="noopener"><span data-i18n="news.cta.btn">Follow @uleth.pama</span> <span class="i i-out" aria-hidden="true"></span></a>
           </div>
         </div>
       </section>

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Site chrome — header, particle menu and footer, shared by every page.
+   Site chrome — header, menu drawer and footer, shared by every page.
    Loaded synchronously in <head> so the custom elements upgrade as the
    parser reaches them (no flash of missing navigation).
 
@@ -18,6 +18,7 @@
   // "js-ready"; if it never does (missing file, error), everything shows.
   const html = document.documentElement;
   html.classList.add("js");
+  try { if (localStorage.getItem("pama-motion") === "off") html.classList.add("motion-off"); } catch (e) { /* storage blocked */ }
   if ("onpagereveal" in window) html.classList.add("vt"); // cross-document view transitions
   document.addEventListener("DOMContentLoaded", () => setTimeout(() => {
     if (!html.classList.contains("js-ready")) html.classList.remove("js");
@@ -36,6 +37,7 @@
     { id: "team", href: "team.html", label: "Team" },
     { id: "resources", href: "resources.html", label: "Resources" },
     { id: "news", href: "news.html", label: "News" },
+    { id: "logbook", href: "logbook.html", label: "Logbook" },
     { id: "join", href: "join.html", label: "Join" },
   ];
 
@@ -45,8 +47,9 @@
     calendar: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4m8-4v4m-4 6v5m-2.5-2.5h5"/></svg>',
     pin: '<svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21Z"/><circle cx="12" cy="9.5" r="2.5"/></svg>',
     clock: '<svg class="icon icon--sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>',
+    search: '<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>',
   };
-  window.PAMA = { ROOT, LINKS, ICONS };
+  window.PAMA = { ROOT, LINKS, ICONS, NAV };
 
   const logo = ROOT + "assets/img/pama-logo-white-sm.png";
   const langSwitch = `
@@ -59,15 +62,17 @@
       const active = this.getAttribute("active") || "";
       const onJoin = active === "join";
       const items = NAV.map((n, i) => `
-        <a class="menu__item" href="${ROOT + n.href}" style="--i:${i}"${n.id === active ? ' aria-current="page"' : ""}>
-          <span class="menu__label"><span class="menu__num" aria-hidden="true">0${i + 1}</span><span data-i18n="nav.${n.id}">${n.label}</span></span>
-          <span class="menu__dot" aria-hidden="true"></span>
-        </a>`).join("");
+          <li><a class="nav-link" href="${ROOT + n.href}" style="--i:${i}"${n.id === active ? ' aria-current="page"' : ""}>
+            <span class="nav-link__num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
+            <span class="nav-link__mask"><span class="nav-link__label" data-i18n="nav.${n.id}">${n.label}</span></span>
+            <span class="nav-link__go i i-arrow" aria-hidden="true"></span>
+          </a></li>`).join("");
 
       this.innerHTML = `
       <a class="skip-link" href="#main" data-i18n="ui.skip">Skip to content</a>
-      <header class="site-header" data-header style="view-transition-name: site-header">
-        <div class="site-header__inner">
+      <header class="site-header" data-header>
+        <!-- the transition name sits on the capsule: on the header it would stop the capsule's backdrop blur -->
+        <div class="site-header__inner" style="view-transition-name: site-header">
           <div class="site-header__left">
             <a class="brand" href="${ROOT}index.html" aria-label="PAMA — home" data-i18n-attr="aria-label:ui.home"><img src="${logo}" alt="PAMA" width="70" height="17"></a>
             <div class="socials">
@@ -79,20 +84,38 @@
             <a class="btn btn--sm" href="${onJoin ? LINKS.joinForm : ROOT + "join.html"}"${onJoin ? ' target="_blank" rel="noopener"' : ""} data-i18n="ui.joinNow">Join now</a>
           </div>
           <div class="site-header__right">
+            <button class="search-btn" type="button" data-palette-open aria-label="Search the site" data-i18n-attr="aria-label:pal.open">${ICONS.search}<kbd aria-hidden="true">/</kbd></button>
             ${langSwitch}
-            <nav class="menu" aria-label="Primary" data-i18n-attr="aria-label:ui.primaryNav" data-menu>
-              <button class="menu__toggle" type="button" aria-expanded="false" aria-controls="site-menu">
-                <span data-i18n="ui.menu">Menu</span><span class="menu__bars" aria-hidden="true"><span></span><span></span></span>
-              </button>
-              <div class="menu__panel" id="site-menu">
-                ${items}
-                <div class="menu__lang">${langSwitch}</div>
-              </div>
-            </nav>
+            <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" data-menu-toggle>
+              <span class="menu-toggle__words"><span data-i18n="ui.menu">Menu</span><span data-i18n="ui.close" aria-hidden="true">Close</span></span>
+              <span class="menu-toggle__icon" aria-hidden="true"><span></span><span></span></span>
+            </button>
           </div>
         </div>
       </header>
-      <div class="menu-veil" data-menu-veil></div>`;
+      <div class="nav-scrim" data-menu-scrim aria-hidden="true"></div>
+      <div class="nav-drawer" id="site-menu" data-menu inert>
+        <p class="nav-drawer__eyebrow"><span data-i18n="menu.title">Navigate</span><span>PAMA · U of L</span></p>
+        <nav aria-label="Primary" data-i18n-attr="aria-label:ui.primaryNav">
+          <ol class="nav-list">${items}
+          </ol>
+        </nav>
+        <div class="nav-drawer__foot">
+          <a class="nav-drawer__next" href="${ROOT}events.html" data-teaser>
+            <span class="nav-drawer__label nav-drawer__label--signal" data-teaser-kicker>Next up</span>
+            <span class="nav-drawer__next-text"><span data-teaser-text>See what's on</span> <span class="i i-arrow" aria-hidden="true"></span></span>
+          </a>
+          <div>
+            <p class="nav-drawer__label" data-i18n="menu.follow">Follow</p>
+            <a class="nav-drawer__link" href="${LINKS.instagram}" target="_blank" rel="noopener">@uleth.pama <span class="i i-out" aria-hidden="true"></span></a>
+          </div>
+          <div>
+            <p class="nav-drawer__label" data-i18n="ui.language">Language</p>
+            ${langSwitch}
+          </div>
+          <a class="btn btn--solid nav-drawer__cta" href="${onJoin ? LINKS.joinForm : ROOT + "join.html"}"${onJoin ? ' target="_blank" rel="noopener"' : ""}><span data-i18n="menu.cta">Become a member</span> <span class="i i-arrow" aria-hidden="true"></span></a>
+        </div>
+      </div>`;
     }
   }
 
@@ -112,29 +135,30 @@
               <p data-i18n="footer.about">The Physics, Astronomy &amp; Mathematics Association — a student-run community at the University of Lethbridge for anyone curious about how the universe works.</p>
             </div>
             <div>
-              <p class="footer-col__title" data-i18n="footer.explore">Explore</p>
-              <ul>${col(["home", "about", "events", "team"])}</ul>
+              <p class="footer-col__title" data-i18n="footer.club">The club</p>
+              <ul>${col(["about", "team", "news", "logbook"])}</ul>
             </div>
             <div>
               <p class="footer-col__title" data-i18n="footer.involved">Get involved</p>
-              <ul>${col(["resources", "news", "join"])}<li><a href="${LINKS.joinForm}" target="_blank" rel="noopener" data-i18n="footer.form">Membership form</a></li></ul>
+              <ul>${col(["events", "resources", "join"])}<li><a href="${LINKS.joinForm}" target="_blank" rel="noopener"><span data-i18n="footer.form">Membership form</span> <span class="i i-out" aria-hidden="true"></span></a></li></ul>
             </div>
             <div>
               <p class="footer-col__title" data-i18n="footer.connect">Connect</p>
               <ul>
-                <li><a href="${LINKS.instagram}" target="_blank" rel="noopener">Instagram</a></li>
+                <li><a href="${LINKS.instagram}" target="_blank" rel="noopener">Instagram <span class="i i-out" aria-hidden="true"></span></a></li>
                 ${LINKS.email ? `<li><a href="${LINKS.email}" data-i18n="footer.email">Email</a></li>` : ""}
                 <li><span data-i18n="footer.uni">University of Lethbridge</span><br>4401 University Dr W<br>Lethbridge, AB</li>
               </ul>
             </div>
           </div>
-          <div class="footer-ack"><p data-i18n="footer.ack">We acknowledge that the University of Lethbridge is located on the traditional territory of the Blackfoot Confederacy, in Treaty 7 territory, and we honour the Blackfoot people and their long-standing relationship with this land and its skies.</p></div>
+          <div class="footer-ack"><p data-i18n="footer.ack">We acknowledge that the University of Lethbridge is located on the traditional territory of the Blackfoot Confederacy, in Treaty 7 territory, and we honour the Blackfoot people and their long-standing relationship with this land and its skies.</p><p class="footer-credit" data-i18n="footer.imagery">Imagery: NASA, ESA, CSA, STScI, JPL-Caltech. Home: Bubble Nebula (NGC 7635).</p></div>
           <div class="footer-bottom">
             <span>© ${year} PAMA · <span data-i18n="footer.uni">University of Lethbridge</span></span>
             <span class="lst" role="group" aria-label="Local sidereal time in Lethbridge" data-i18n-attr="aria-label:footer.lstLabel">
               <span data-i18n="footer.coords">49.68° N · 112.86° W</span>
               <span data-i18n-attr="title:footer.lstTitle" title="Local sidereal time — which part of the sky is overhead right now"><span data-i18n="footer.lst">LST</span> <b data-lst>--:--:--</b></span>
             </span>
+            <button class="motion-toggle" type="button" role="switch" aria-checked="true" data-motion-toggle><span data-i18n="footer.motion">Motion</span> <b data-motion-state>On</b></button>
             <a href="#top" data-to-top data-i18n="footer.top">Back to top ↑</a>
           </div>
         </div>
@@ -150,7 +174,14 @@
     document.querySelectorAll("[data-link]").forEach((a) => {
       const url = LINKS[a.dataset.link];
       if (url) a.href = url;
-      else if (a.dataset.link === "email") a.hidden = true;
     });
   });
+})();
+
+// The site-wide search palette (press / or Ctrl/Cmd+K) loads on its own
+(function () {
+  const s = document.createElement("script");
+  s.src = new URL("palette.js", document.currentScript.src).href;
+  s.defer = true;
+  document.head.appendChild(s);
 })();

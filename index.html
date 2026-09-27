@@ -10,13 +10,26 @@
   <meta property="og:site_name" content="PAMA">
   <meta property="og:title" content="PAMA — Physics, Astronomy &amp; Mathematics Association">
   <meta property="og:description" content="A student community for the curious at the University of Lethbridge.">
+  <meta property="og:url" content="https://ulethpama.space/">
+  <meta property="og:image" content="https://ulethpama.space/assets/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ulethpama.space/">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,200;0,300;0,400;0,500;0,600;1,300;1,400&amp;family=JetBrains+Mono:wght@400&amp;family=STIX+Two+Text:ital@0;1&amp;display=swap">
   <link rel="stylesheet" href="assets/css/style.css">
-  <link rel="preload" as="image" href="assets/img/space.avif" type="image/avif">
+  <link rel="preload" as="image" href="assets/img/space.avif" type="image/avif" fetchpriority="high">
+  <script>
+    // First visit this session: show only the logo until the visitor scrolls, taps or presses a key.
+    try {
+      if (!sessionStorage.getItem("pama-intro") && !location.hash && !matchMedia("(prefers-reduced-motion: reduce)").matches)
+        document.documentElement.classList.add("is-intro");
+    } catch (e) { /* storage blocked: skip the intro */ }
+  </script>
   <script src="assets/js/i18n.js"></script>
   <script src="assets/js/chrome.js"></script>
   <script src="assets/js/data.js" defer></script>
@@ -32,33 +45,43 @@
       <!-- ============ HERO ============ -->
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero__main">
-          <img class="hero__logo intro" src="assets/img/pama-logo-white.png" alt="PAMA" width="1281" height="311" style="--d:120ms">
-          <h1 class="hero__title intro" id="hero-title" style="--d:520ms" data-i18n="home.hero.title">Physics, Astronomy &amp; Mathematics Association</h1>
-          <p class="hero__subtitle intro" style="--d:680ms" data-i18n="home.hero.uni">University of Lethbridge</p>
+          <div class="hero__logo-wrap">
+            <div class="hud" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <img class="hero__logo intro" src="assets/img/pama-logo-white.png" alt="PAMA" width="1281" height="311" style="--d:120ms">
+          </div>
+          <h1 class="hero__title" id="hero-title" data-i18n="home.hero.title" data-scramble>Physics, Astronomy &amp; Mathematics Association</h1>
+          <p class="hero__subtitle" data-i18n="home.hero.uni">University of Lethbridge</p>
         </div>
 
         <div class="hero__foot">
-          <a class="news-card intro" href="events.html" style="--d:950ms" data-teaser>
-            <div class="news-card__media" data-art="orbit"></div>
-            <div class="news-card__body">
-              <span class="news-card__kicker" data-teaser-kicker>Next up</span>
-              <span class="news-card__text" data-teaser-text>Cosmic Cinema is back. Join us under the stars…</span>
-              <span class="news-card__cta"><span data-i18n="home.hero.allEvents">All events</span> <span class="i i-arrow" aria-hidden="true"></span></span>
-            </div>
+          <a class="hero-col hero-col--next" href="events.html" data-teaser>
+            <span class="hero-col__label" data-teaser-kicker>Next up</span>
+            <span class="hero-col__text" data-teaser-text>Cosmic Cinema is back. Join us under the stars…</span>
+            <span class="hero-col__cta"><span data-i18n="home.hero.allEvents">Event details</span> <span class="i i-arrow" aria-hidden="true"></span></span>
           </a>
-          <p class="hero__col-2 intro" style="--d:1050ms" data-i18n="home.hero.col2">A non-profit student organization and the modern successor to the historic Physics Club, giving future scientists the skills, resources and community to thrive.</p>
-          <p class="hero__col-3 intro" style="--d:1150ms" data-i18n="home.hero.col3">Open to every student, and to faculty, staff and the Lethbridge community — a safe, inclusive place to learn, question and grow.</p>
-          <a class="scroll-cue intro" href="#mission" style="--d:1300ms"><span data-i18n="home.hero.scroll">Scroll</span><span class="scroll-cue__line" aria-hidden="true"></span></a>
+          <a class="hero-col hero__col-2" href="about.html">
+            <span class="hero-col__label" data-i18n="home.hero.l2">Who we are</span>
+            <span class="hero-col__text" data-i18n="home.hero.col2">A non-profit student organization and the modern successor to the historic Physics Club, giving future scientists the skills, resources and community to thrive.</span>
+            <span class="hero-col__cta"><span data-i18n="home.hero.c2cta">Our story</span> <span class="i i-arrow" aria-hidden="true"></span></span>
+          </a>
+          <a class="hero-col hero__col-3" href="join.html">
+            <span class="hero-col__label" data-i18n="home.hero.l3">Open to all</span>
+            <span class="hero-col__text" data-i18n="home.hero.col3">Open to every student, and to faculty, staff and the Lethbridge community — a safe, inclusive place to learn, question and grow.</span>
+            <span class="hero-col__cta"><span data-i18n="home.hero.c3cta">How to join</span> <span class="i i-arrow" aria-hidden="true"></span></span>
+          </a>
+          <a class="scroll-cue" href="#mission"><span data-i18n="home.hero.scroll">Scroll</span><span class="scroll-cue__line" aria-hidden="true"></span></a>
         </div>
+
+        <p class="intro-cue" aria-hidden="true"><span data-i18n="home.hero.begin">Scroll to begin</span><span class="intro-cue__line"></span></p>
       </section>
 
       <!-- ============ 01 · MISSION ============ -->
       <section class="section" id="mission" aria-labelledby="mission-title">
         <div class="container">
           <div class="split">
-            <div><p class="eyebrow reveal"><span class="idx">01</span><span data-i18n="home.mission.eyebrow">Mission</span></p></div>
+            <div class="split__aside"><p class="eyebrow reveal"><span class="idx">01</span><span data-i18n="home.mission.eyebrow">Mission</span></p></div>
             <div>
-              <h2 class="statement reveal" id="mission-title" data-i18n="home.mission.title">A home for the curious — where first-years and graduate researchers work through <em>the same beautiful problems,</em> side by side.</h2>
+              <h2 class="statement reveal" id="mission-title" data-i18n="home.mission.title">A home for the curious — where first-years and graduate researchers work through <em>the same beautiful problems,</em> side by side.</h2>
               <p class="lead reveal mt-m" style="--d:120ms" data-i18n="home.mission.lead">Talks, observing nights, study sessions and socials that make the physical and mathematical sciences feel less like a list of courses and more like a community you belong to.</p>
               <div class="btn-row mt-m reveal" style="--d:200ms"><a class="link" href="about.html"><span data-i18n="home.mission.cta">Read our story</span> <span class="i i-arrow" aria-hidden="true"></span></a></div>
             </div>
@@ -87,35 +110,77 @@
         </div>
       </section>
 
+      <!-- ============ TICKER ============ -->
+      <div class="ticker" aria-hidden="true">
+        <div class="ticker__track">
+          <div class="ticker__list" data-ticker data-i18n="home.ticker"><span>Quantum mechanics</span><span>General relativity</span><span>Cosmology</span><span>Number theory</span><span>Exoplanets</span><span>Topology</span><span>Astrophotography</span><span>Chaos theory</span><span>Particle physics</span><span>Complex analysis</span><span>Black holes</span><span>Statistical mechanics</span></div>
+        </div>
+      </div>
+
       <!-- ============ 02 · EVENTS ============ -->
-      <section class="section" aria-labelledby="events-title">
+      <section class="section section--flush" aria-labelledby="events-title">
         <div class="container">
-          <div class="section-head section-head--row">
-            <div class="stack" style="--stack:20px">
+          <div class="split">
+            <div class="split__aside stack" style="--stack:1.25rem">
               <p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="home.events.eyebrow">Upcoming</span></p>
               <h2 class="h2 reveal" id="events-title" data-i18n="home.events.title">On the sky chart</h2>
+              <div class="reveal"><a class="link" href="events.html"><span data-i18n="home.events.cta">Full calendar</span> <span class="i i-arrow" aria-hidden="true"></span></a></div>
             </div>
-            <a class="btn reveal" href="events.html"><span data-i18n="home.events.cta">Full calendar</span> <span class="i i-arrow" aria-hidden="true"></span></a>
+            <div class="event-list reveal" data-events-upcoming="3"></div>
           </div>
-          <div class="event-list reveal" data-events-upcoming="3"></div>
         </div>
       </section>
 
       <!-- ============ EQUATION OF THE WEEK ============ -->
       <section class="equation" data-equation aria-labelledby="eq-title">
         <h2 class="eyebrow eyebrow--plain reveal" id="eq-title" data-i18n="home.eq.title">Equation of the week</h2>
-        <p class="equation__formula"><i>e</i><sup><i>iπ</i></sup> + 1 = 0</p>
+        <p class="equation__meta reveal" data-eq-meta></p>
+        <p class="equation__formula"><span class="equation__math"><i>e</i><sup><i>iπ</i></sup> + 1 = 0</span></p>
+        <ul class="eq-legend" data-eq-legend aria-hidden="true"></ul>
         <p class="equation__caption">Euler's identity — five fundamental constants, three basic operations, one line.</p>
         <div class="equation__nav"></div>
+        <button class="equation__arrow equation__arrow--prev" type="button" data-eq-step="-1" aria-label="Previous equation" data-i18n-attr="aria-label:eq.prev"><span class="i i-arrow" aria-hidden="true"></span></button>
+        <button class="equation__arrow equation__arrow--next" type="button" data-eq-step="1" aria-label="Next equation" data-i18n-attr="aria-label:eq.next"><span class="i i-arrow" aria-hidden="true"></span></button>
         <p class="sr-only" aria-live="polite" data-eq-status></p>
       </section>
 
-      <!-- ============ 03 · NEWS ============ -->
+      <!-- ============ 03 · PROBLEM OF THE WEEK ============ -->
+      <section class="section" aria-labelledby="pow-title" data-problem>
+        <div class="container">
+          <div class="split">
+            <div class="split__aside stack" style="--stack:1.25rem">
+              <p class="eyebrow reveal"><span class="idx">03</span><span data-i18n="pow.eyebrow">Problem of the week</span></p>
+              <h2 class="h2 reveal" id="pow-title" data-pow-title>Falling through the Earth</h2>
+              <p class="lead reveal" data-i18n="pow.lead">A new puzzle every Monday. Work it out over coffee, then bring your answer to Problem Night.</p>
+            </div>
+            <div class="instrument pow reveal">
+              <div class="instrument__bar"><span data-pow-no>Problem</span><span data-i18n="pow.due">New every Monday</span></div>
+              <div class="pow__body">
+                <div class="pow__fig" data-pow-fig aria-hidden="true"></div>
+                <p class="pow__q" data-pow-q></p>
+                <details class="pow__fold">
+                  <summary><span data-i18n="pow.hint">Need a hint?</span><span class="plus" aria-hidden="true"></span></summary>
+                  <div class="pow__text" data-pow-hint></div>
+                </details>
+              </div>
+              <div class="pow__last">
+                <p class="pow__label"><span data-i18n="pow.last">Last week</span> · <b data-pow-last-title></b></p>
+                <details class="pow__fold">
+                  <summary><span data-i18n="pow.solution">Show the solution</span><span class="plus" aria-hidden="true"></span></summary>
+                  <div class="pow__text" data-pow-last></div>
+                </details>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 04 · NEWS ============ -->
       <section class="section" aria-labelledby="news-title">
         <div class="container">
           <div class="section-head section-head--row">
-            <div class="stack" style="--stack:20px">
-              <p class="eyebrow reveal"><span class="idx">03</span><span data-i18n="home.news.eyebrow">Latest</span></p>
+            <div class="stack" style="--stack:1.25rem">
+              <p class="eyebrow reveal"><span class="idx">04</span><span data-i18n="home.news.eyebrow">Latest</span></p>
               <h2 class="h2 reveal" id="news-title" data-i18n="home.news.title">Transmissions</h2>
             </div>
             <a class="link reveal" href="news.html"><span data-i18n="home.news.cta">All news</span> <span class="i i-arrow" aria-hidden="true"></span></a>
@@ -128,6 +193,7 @@
       <section class="section cta" aria-labelledby="cta-title">
         <svg class="cta__orbit" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width=".4">
           <circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="160" stroke-dasharray="1 4"/><circle cx="200" cy="200" r="198"/>
+          <g class="spin"><circle cx="200" cy="40" r="2.5" style="fill:var(--accent)" stroke="none"/><circle cx="398" cy="200" r="1.8" fill="#fff" stroke="none"/></g>
         </svg>
         <div class="container">
           <p class="eyebrow eyebrow--plain reveal" data-i18n="home.cta.eyebrow">Membership is free</p>
