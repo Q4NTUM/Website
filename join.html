@@ -10,6 +10,13 @@
   <meta property="og:site_name" content="PAMA">
   <meta property="og:title" content="Join PAMA">
   <meta property="og:description" content="Membership is free and open to every student.">
+  <meta property="og:url" content="https://ulethpama.space/join.html">
+  <meta property="og:image" content="https://ulethpama.space/assets/img/og.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://ulethpama.space/join.html">
+  <link rel="preload" as="image" href="assets/img/bg/pleiades.jpg" fetchpriority="high">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,25 +28,50 @@
   <script src="assets/js/data.js" defer></script>
   <script src="assets/js/main.js" defer></script>
 </head>
-<body id="top">
+<body id="top" data-theme="join">
   <site-header active="join"></site-header>
 
   <div class="page">
     <main id="main">
 
-      <section class="page-hero" style="--hero-pos: 40% 50%">
-        <div class="container page-hero__inner">
+      <section class="page-hero" style="--gx: 70%; --gy: 50%">
+        <div class="page-hero__bg" style="background-image:url('assets/img/bg/pleiades.jpg')" aria-hidden="true"></div>
+        <div class="container page-hero__grid">
           <div>
             <p class="eyebrow intro" data-i18n="join.hero.eyebrow">Membership</p>
-            <h1 class="h1 intro" style="--d:80ms" data-i18n="join.hero.title">Pull up a chair — and a telescope.</h1>
+            <h1 class="h1 intro" style="--d:80ms" data-i18n="join.hero.title">Pull up a chair — and a <em>telescope</em>.</h1>
             <p class="lead intro" style="--d:160ms" data-i18n="join.hero.lead">Membership is free and open to every student, whatever your program or year. It takes about two minutes.</p>
             <div class="btn-row mt-m intro" style="--d:220ms">
-              <a class="btn btn--solid" data-link="joinForm" target="_blank" rel="noopener"><span data-i18n="join.hero.form">Membership form</span> <span class="i i-out" aria-hidden="true"></span></a>
+              <a class="btn btn--solid" href="https://docs.google.com/forms/d/e/1FAIpQLSfjsnHnHnEASkb9UESTRAUj_tec0Mdjt4p_MMNZUCRRq6XK8A/viewform?usp=header" data-link="joinForm" target="_blank" rel="noopener"><span data-i18n="join.hero.form">Membership form</span> <span class="i i-out" aria-hidden="true"></span></a>
               <a class="btn" href="#faq" data-i18n="join.hero.faq">Questions?</a>
             </div>
+            <div class="stat-trio intro" style="--d:300ms">
+              <div><b data-i18n="join.hero.costv">$0</b><span data-i18n="join.hero.cost">Cost</span></div>
+              <div><b data-i18n="join.hero.timev">~2 min</b><span data-i18n="join.hero.time">Time</span></div>
+              <div><b>1</b><span data-i18n="join.hero.prereq">Prerequisite: curiosity</span></div>
+            </div>
           </div>
-          <p class="page-hero__meta intro" style="--d:280ms"><span data-i18n="join.hero.cost">Cost</span> <b data-i18n="join.hero.costv">$0</b><br><span data-i18n="join.hero.time">Time</span> <b data-i18n="join.hero.timev">~2 min</b></p>
+          <div class="page-hero__visual intro" style="--d:220ms" aria-hidden="true">
+            <div class="instrument corner-ticks">
+              <div class="instrument__bar"><span data-i18n="inst.join">Fig. 07 — Orbit insertion</span><span class="instrument__status" data-i18n="inst.nominal">Nominal trajectory</span></div>
+              <div class="instrument__body">
+              <svg class="insertion" viewBox="0 0 400 400" fill="none">
+              <circle cx="200" cy="200" r="120" stroke="rgba(255,255,255,.28)"/>
+              <circle cx="200" cy="200" r="160" stroke="rgba(255,255,255,.1)" stroke-dasharray="2 6"/>
+              <circle cx="200" cy="200" r="190" stroke="rgba(255,255,255,.2)" stroke-width="5" stroke-dasharray="1 10.93"/>
+              <path d="M24 384C80 356 140 330 200 320" style="stroke:rgba(var(--accent-rgb),.55)" stroke-dasharray="3 5"/>
+              <circle cx="200" cy="200" r="46" fill="url(#pl)"/>
+              <circle cx="200" cy="200" r="22" fill="#0d1120" stroke="rgba(255,255,255,.5)"/>
+              <path d="M178 200h44" stroke="rgba(255,255,255,.25)"/>
+              <defs><radialGradient id="pl"><stop offset="0" style="stop-color:var(--accent)" stop-opacity=".35"/><stop offset="1" style="stop-color:var(--accent)" stop-opacity="0"/></radialGradient></defs>
+              <circle r="5" style="fill:var(--accent)"><animateMotion dur="12s" repeatCount="indefinite" keyPoints="0;0.111;1" keyTimes="0;0.08;1" calcMode="linear" path="M24 384C80 356 140 320 200 320A120 120 0 1 0 200 80A120 120 0 1 0 200 320A120 120 0 1 0 200 80A120 120 0 1 0 200 320"/></circle>
+              <text x="206" y="336" font-family="JetBrains Mono, monospace" font-size="11" letter-spacing="1.6" fill="#b8becd">ORBIT 01</text>
+            </svg>
+              </div>
+            </div>
+          </div>
         </div>
+        <p class="page-hero__credit"><b data-i18n="credit.join">The Pleiades (M45)</b> — NASA/JPL-Caltech</p>
       </section>
 
       <!-- Steps -->
@@ -50,8 +82,8 @@
             <h2 class="h2 reveal" id="how-title" data-i18n="join.how.title">Three steps to orbit.</h2>
           </div>
           <div class="steps" data-stagger>
-            <div class="step"><h3 data-i18n="join.how.s1.t">Fill in the form</h3><p data-i18n="join.how.s1.p">Tell us your name, program and what you're interested in. We only use it to keep you informed.</p><a class="link" data-link="joinForm" target="_blank" rel="noopener"><span data-i18n="join.how.s1.cta">Open form</span> <span class="i i-out" aria-hidden="true"></span></a></div>
-            <div class="step"><h3 data-i18n="join.how.s2.t">Follow along</h3><p data-i18n="join.how.s2.p">Event announcements and last-minute observing nights are posted on Instagram first.</p><a class="link" data-link="instagram" target="_blank" rel="noopener">@uleth.pama <span class="i i-out" aria-hidden="true"></span></a></div>
+            <div class="step"><h3 data-i18n="join.how.s1.t">Fill in the form</h3><p data-i18n="join.how.s1.p">Tell us your name, program and what you're interested in. We only use it to keep you informed.</p><a class="link" href="https://docs.google.com/forms/d/e/1FAIpQLSfjsnHnHnEASkb9UESTRAUj_tec0Mdjt4p_MMNZUCRRq6XK8A/viewform?usp=header" data-link="joinForm" target="_blank" rel="noopener"><span data-i18n="join.how.s1.cta">Open form</span> <span class="i i-out" aria-hidden="true"></span></a></div>
+            <div class="step"><h3 data-i18n="join.how.s2.t">Follow along</h3><p data-i18n="join.how.s2.p">Event announcements and last-minute observing nights are posted on Instagram first.</p><a class="link" href="https://www.instagram.com/uleth.pama/" data-link="instagram" target="_blank" rel="noopener">@uleth.pama <span class="i i-out" aria-hidden="true"></span></a></div>
             <div class="step"><h3 data-i18n="join.how.s3.t">Show up</h3><p data-i18n="join.how.s3.p">Come to any event. Bring a friend. Nobody will quiz you on Maxwell's equations at the door.</p><a class="link" href="events.html"><span data-i18n="join.how.s3.cta">Upcoming events</span> <span class="i i-arrow" aria-hidden="true"></span></a></div>
           </div>
         </div>
@@ -61,7 +93,7 @@
       <section class="section" aria-labelledby="get-title">
         <div class="container">
           <div class="split">
-            <div class="stack" style="--stack:20px">
+            <div class="stack" style="--stack:1.25rem">
               <p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="join.get.eyebrow">Membership</span></p>
               <h2 class="h2 reveal" id="get-title" data-i18n="join.get.title">What's<br>included.</h2>
             </div>
@@ -84,7 +116,7 @@
       <section class="section" id="faq" aria-labelledby="faq-title">
         <div class="container">
           <div class="split">
-            <div class="stack" style="--stack:20px">
+            <div class="stack" style="--stack:1.25rem">
               <p class="eyebrow reveal"><span class="idx">03</span><span data-i18n="join.faq.eyebrow">FAQ</span></p>
               <h2 class="h2 reveal" id="faq-title" data-i18n="join.faq.title">Frequently<br>asked.</h2>
             </div>
@@ -109,10 +141,23 @@
             <p class="lead reveal" data-i18n="join.contact.lead">Questions, ideas, speaking offers or partnership enquiries — we'd love to hear from you.</p>
           </div>
           <dl class="contact-grid" data-stagger>
-            <div><dt>Instagram</dt><dd><a class="text-link" data-link="instagram" target="_blank" rel="noopener">@uleth.pama</a><br><span class="faint" data-i18n="join.contact.ig">Fastest way to reach us</span></dd></div>
+            <div><dt>Instagram</dt><dd><a class="text-link" href="https://www.instagram.com/uleth.pama/" data-link="instagram" target="_blank" rel="noopener">@uleth.pama</a><br><span class="faint" data-i18n="join.contact.ig">Fastest way to reach us</span></dd></div>
             <div><dt data-i18n="join.contact.email">Email</dt><dd><span data-i18n="join.contact.soon">Coming soon</span><br><span class="faint" data-i18n="join.contact.soonp">A club address is being set up</span></dd></div>
             <div><dt data-i18n="join.contact.find">Find us</dt><dd>Science Commons<br><span class="faint" data-i18n="join.contact.room">University of Lethbridge · Room TBA</span></dd></div>
           </dl>
+        </div>
+      </section>
+
+      <!-- Close -->
+      <section class="section cta" aria-labelledby="join-cta-title">
+        <svg class="cta__orbit" viewBox="0 0 400 400" fill="none" aria-hidden="true"><circle cx="200" cy="200" r="120" stroke="currentColor" stroke-dasharray="2 6"/><circle cx="200" cy="200" r="190" stroke="currentColor"/><g class="spin"><circle cx="390" cy="200" r="3" style="fill:var(--accent)"/></g></svg>
+        <div class="container">
+          <p class="eyebrow eyebrow--plain reveal" data-i18n="join.cta.eyebrow">Ready when you are</p>
+          <h2 class="h1 cta__title reveal" id="join-cta-title" data-i18n="join.cta.title">Two minutes. Zero experience needed.</h2>
+          <div class="btn-row reveal">
+            <a class="btn btn--solid" href="https://docs.google.com/forms/d/e/1FAIpQLSfjsnHnHnEASkb9UESTRAUj_tec0Mdjt4p_MMNZUCRRq6XK8A/viewform?usp=header" data-link="joinForm" target="_blank" rel="noopener"><span data-i18n="join.hero.form">Membership form</span> <span class="i i-out" aria-hidden="true"></span></a>
+            <a class="btn" href="events.html"><span data-i18n="join.cta.events">See what's on</span> <span class="i i-arrow" aria-hidden="true"></span></a>
+          </div>
         </div>
       </section>
 

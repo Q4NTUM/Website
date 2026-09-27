@@ -5,10 +5,15 @@
      start / end : local Lethbridge time as "YYYY-MM-DD HH:MM" (24-hour).
                    Daylight saving is handled automatically.
      cat         : talk · observing · workshop · social · competition
-     fr          : optional French overrides { title, desc, location }
+     fr          : optional French overrides { title, desc, location, bring, details }
+     bring       : optional list of things to bring (otherwise a default per category)
+     details     : optional list of extra paragraphs for the event's own page
+     Every event gets its own shareable page: event.html?id=THE-ID
    NEWS
      date        : "YYYY-MM-DD"; art: orbit · wave · lattice · spiral · constellation
-     fr          : optional French overrides { title, tag, excerpt, body }
+     fr          : optional French overrides { title, tag, excerpt, body }
+   EQUATIONS     html is inserted as-is (trusted markup)
+   VENUES · PROBLEMS · GALLERY — see the notes above each list further down
 
    Everything below is PLACEHOLDER content for the draft site.
    ========================================================================== */
@@ -159,7 +164,7 @@ window.PAMA_DATA = {
   news: [
     {
       id: "cosmic-cinema-returns", date: "2026-09-20", tag: "Events", art: "orbit",
-      title: "Cosmic Cinema is back — under the stars, sort of",
+      title: "Cosmic Cinema is back — under the stars, sort of",
       excerpt: "Our film series returns for Fall 2026, with a short talk before every screening.",
       body: [
         "Cosmic Cinema, the most popular tradition inherited from the old Physics Club, returns this term with a new format: every screening opens with a ten-minute talk by a student or graduate volunteer on the real science behind the film.",
@@ -250,10 +255,113 @@ window.PAMA_DATA = {
   ],
 
   equations: [
-    { html: '<i>e</i><sup><i>iπ</i></sup> + 1 = 0', caption: "Euler's identity — five fundamental constants, three basic operations, one line.", fr: { caption: "L'identité d'Euler — cinq constantes fondamentales, trois opérations, une seule ligne." } },
-    { html: '∇ · <b>E</b> = <i>ρ</i> / <i>ε</i><sub>0</sub>', caption: "Gauss's law — electric field lines begin and end on charge.", fr: { caption: "La loi de Gauss — les lignes de champ électrique naissent et meurent sur les charges." } },
-    { html: '<i>iħ</i> ∂<sub><i>t</i></sub><i>ψ</i> = <i>Ĥψ</i>', caption: "The Schrödinger equation — how a quantum state evolves in time.", fr: { caption: "L'équation de Schrödinger — comment un état quantique évolue dans le temps." } },
-    { html: '<i>G</i><sub><i>μν</i></sub> + Λ<i>g</i><sub><i>μν</i></sub> = <span class="nowrap">8π<i>G</i>/<i>c</i><sup>4</sup></span> <i>T</i><sub><i>μν</i></sub>', caption: "Einstein's field equations — matter tells spacetime how to curve.", fr: { caption: "Les équations d'Einstein — la matière dit à l'espace-temps comment se courber." } },
-    { html: '<i>S</i> = <i>k</i><sub>B</sub> ln Ω', caption: "Boltzmann's entropy — engraved on his tombstone in Vienna.", fr: { caption: "L'entropie de Boltzmann — gravée sur sa tombe à Vienne." } },
+    /* Wrap each symbol worth explaining in <span data-t="n">; terms[n] labels it */
+    {
+      html: '<span data-t="0"><i>e</i></span><sup><span data-t="1"><i>i</i></span><span data-t="2"><i>π</i></span></sup> + <span data-t="3">1</span> = <span data-t="4">0</span>',
+      field: "Complex analysis", year: 1748,
+      terms: ["Euler's number", "imaginary unit", "circle constant", "unity", "zero"],
+      caption: "Euler's identity — five fundamental constants, three basic operations, one line.",
+      fr: { field: "Analyse complexe", terms: ["nombre d'Euler", "unité imaginaire", "constante du cercle", "unité", "zéro"], caption: "L'identité d'Euler — cinq constantes fondamentales, trois opérations, une seule ligne." },
+    },
+    {
+      html: '<span data-t="0">∇ ·</span> <span data-t="1"><b>E</b></span> = <span data-t="2"><i>ρ</i></span> / <span data-t="3"><i>ε</i><sub>0</sub></span>',
+      field: "Electromagnetism", year: 1835,
+      terms: ["divergence", "electric field", "charge density", "vacuum permittivity"],
+      caption: "Gauss's law — electric field lines begin and end on charge.",
+      fr: { field: "Électromagnétisme", terms: ["divergence", "champ électrique", "densité de charge", "permittivité du vide"], caption: "La loi de Gauss — les lignes de champ électrique naissent et meurent sur les charges." },
+    },
+    {
+      html: '<span data-t="0"><i>iħ</i></span> <span data-t="1">∂<sub><i>t</i></sub><i>ψ</i></span> = <span data-t="2"><i>Ĥ</i></span><i>ψ</i>',
+      field: "Quantum mechanics", year: 1926,
+      terms: ["reduced Planck constant", "how the state changes", "Hamiltonian · energy"],
+      caption: "The Schrödinger equation — how a quantum state evolves in time.",
+      fr: { field: "Mécanique quantique", terms: ["constante de Planck réduite", "évolution de l'état", "hamiltonien · énergie"], caption: "L'équation de Schrödinger — comment un état quantique évolue dans le temps." },
+    },
+    {
+      html: '<span data-t="0"><i>G</i><sub><i>μν</i></sub></span> + <span data-t="1">Λ</span><span data-t="2"><i>g</i><sub><i>μν</i></sub></span> = <span class="nowrap" data-t="3">8π<i>G</i>/<i>c</i><sup>4</sup></span> <span data-t="4"><i>T</i><sub><i>μν</i></sub></span>',
+      field: "General relativity", year: 1915,
+      terms: ["curvature", "cosmological constant", "metric", "coupling", "matter & energy"],
+      caption: "Einstein's field equations — matter tells spacetime how to curve.",
+      fr: { field: "Relativité générale", terms: ["courbure", "constante cosmologique", "métrique", "couplage", "matière et énergie"], caption: "Les équations d'Einstein — la matière dit à l'espace-temps comment se courber." },
+    },
+    {
+      html: '<span data-t="0"><i>S</i></span> = <span data-t="1"><i>k</i><sub>B</sub></span> ln <span data-t="2">Ω</span>',
+      field: "Statistical mechanics", year: 1877,
+      terms: ["entropy", "Boltzmann constant", "number of microstates"],
+      caption: "Boltzmann's entropy — engraved on his tombstone in Vienna.",
+      fr: { field: "Physique statistique", terms: ["entropie", "constante de Boltzmann", "nombre de micro-états"], caption: "L'entropie de Boltzmann — gravée sur sa tombe à Vienne." },
+    },
+  ],
+
+  /* Where events happen. An event's location is matched to the first venue
+     whose key it starts with. Coordinates are approximate — confirm them. */
+  venues: {
+    "Science Commons": { name: "Science Commons, University of Lethbridge", address: "4401 University Dr W, Lethbridge, AB T1K 3M4", lat: 49.6788, lon: -112.8626 },
+    "Students' Union Building": { name: "Students' Union Building, University of Lethbridge", address: "4401 University Dr W, Lethbridge, AB T1K 3M4", lat: 49.6797, lon: -112.8594 },
+    "Dark-sky site": {
+      name: "Meet at the Science Commons", address: "4401 University Dr W, Lethbridge, AB T1K 3M4", lat: 49.6788, lon: -112.8626,
+      note: "We carpool from campus to a dark site outside the city. The exact spot is shared on Instagram the afternoon of the event, depending on the forecast.",
+      fr: { name: "Rendez-vous au Science Commons", note: "Nous faisons du covoiturage depuis le campus vers un site sombre hors de la ville. L'endroit exact est annoncé sur Instagram l'après-midi même, selon la météo." },
+    },
+  },
+
+  /* Problem of the week — rotates every Monday, like the equations.
+     Last week's solution is shown under the current problem. */
+  problems: [
+    {
+      title: "Falling through the Earth",
+      fig: "tunnel",
+      q: "Drill a straight, frictionless tunnel through the centre of the Earth and jump in. Ignoring air, how long until you pop out on the other side?",
+      hint: "Inside a uniform sphere, gravity grows linearly with your distance from the centre. What else pulls back in proportion to how far you are from home?",
+      answer: "It's a spring: simple harmonic motion with ω = √(g/R). Half a period is π√(R/g) ≈ 42 minutes — and, surprisingly, any straight tunnel between two points on the surface takes the same 42 minutes.",
+      fr: { title: "Tomber à travers la Terre", q: "Creusez un tunnel droit et sans frottement qui traverse le centre de la Terre, puis sautez. Sans l'air, combien de temps avant de ressortir de l'autre côté?", hint: "À l'intérieur d'une sphère uniforme, la gravité croît linéairement avec la distance au centre. Qu'est-ce qui d'autre vous ramène proportionnellement à votre écart?", answer: "C'est un ressort : un mouvement harmonique simple avec ω = √(g/R). Une demi-période vaut π√(R/g) ≈ 42 minutes — et, étonnamment, tout tunnel droit entre deux points de la surface prend les mêmes 42 minutes." },
+    },
+    {
+      title: "A rope around the equator",
+      fig: "rope",
+      q: "A rope hugs the Earth's equator. Add one metre to its length and lift it evenly all the way round. How big is the gap underneath — enough for a sheet of paper, or a cat?",
+      hint: "Circumference is 2πr. If the circumference grows by 1 m, how much does r grow?",
+      answer: "Δr = 1 m / 2π ≈ 16 cm — a cat walks under easily. The answer doesn't depend on the size of the sphere at all: it's the same for a basketball.",
+      fr: { title: "Une corde autour de l'équateur", q: "Une corde épouse l'équateur terrestre. Ajoutez-lui un mètre et soulevez-la uniformément tout autour. Quelle hauteur a l'espace dessous — une feuille de papier, ou un chat?", hint: "La circonférence vaut 2πr. Si elle augmente de 1 m, de combien r augmente-t-il?", answer: "Δr = 1 m / 2π ≈ 16 cm — un chat passe sans peine. La réponse ne dépend pas du tout de la taille de la sphère : c'est pareil pour un ballon de basket." },
+    },
+    {
+      title: "How far is the horizon?",
+      fig: "horizon",
+      q: "Standing on the flat prairie with your eyes 1.7 m above the ground, how far away is the horizon?",
+      hint: "Draw the right triangle: Earth's radius R, your line of sight, and R + h from the centre to your eyes.",
+      answer: "d = √((R + h)² − R²) ≈ √(2Rh) = √(2 × 6.37 × 10⁶ m × 1.7 m) ≈ 4.7 km. From the top of the High Level Bridge (about 96 m) it grows to roughly 35 km.",
+      fr: { title: "À quelle distance est l'horizon?", q: "Debout dans la prairie, les yeux à 1,7 m du sol, à quelle distance se trouve l'horizon?", hint: "Tracez le triangle rectangle : le rayon terrestre R, votre ligne de visée, et R + h du centre jusqu'à vos yeux.", answer: "d = √((R + h)² − R²) ≈ √(2Rh) = √(2 × 6,37 × 10⁶ m × 1,7 m) ≈ 4,7 km. Du haut du pont High Level (environ 96 m), elle passe à environ 35 km." },
+    },
+    {
+      title: "Twenty-three strangers",
+      fig: "birthday",
+      q: "How many people need to be in a room before it's more likely than not that two of them share a birthday?",
+      hint: "It's much easier to compute the probability that nobody shares a birthday, then subtract from one.",
+      answer: "Just 23. The chance that all 23 birthdays differ is 365/365 × 364/365 × … × 343/365 ≈ 0.49 — because there are 253 different pairs, not 23.",
+      fr: { title: "Vingt-trois inconnus", q: "Combien de personnes faut-il dans une pièce pour qu'il soit plus probable qu'improbable que deux d'entre elles partagent un anniversaire?", hint: "Il est bien plus simple de calculer la probabilité que personne ne partage d'anniversaire, puis de la soustraire de un.", answer: "Seulement 23. La probabilité que les 23 anniversaires diffèrent vaut 365/365 × 364/365 × … × 343/365 ≈ 0,49 — parce qu'il y a 253 paires différentes, pas 23." },
+    },
+    {
+      title: "The snail on the rubber band",
+      fig: "snail",
+      q: "A snail crawls at 1 cm/s along a 1 m rubber band. Every second, the band is stretched by another metre (uniformly, carrying the snail with it). Does the snail ever reach the end?",
+      hint: "Track the fraction of the band the snail has covered, not the distance. Stretching doesn't change that fraction.",
+      answer: "Yes! In second n it covers 1/(100n) of the band, so after N seconds it has covered (1/100)(1 + 1/2 + … + 1/N). The harmonic series diverges, so it gets there — after about e¹⁰⁰ ≈ 10⁴³ seconds.",
+      fr: { title: "L'escargot sur l'élastique", q: "Un escargot avance à 1 cm/s sur un élastique de 1 m. Chaque seconde, l'élastique est étiré d'un mètre de plus (uniformément, en entraînant l'escargot). L'escargot atteint-il un jour le bout?", hint: "Suivez la fraction de l'élastique parcourue, pas la distance. L'étirement ne change pas cette fraction.", answer: "Oui! À la seconde n, il parcourt 1/(100n) de l'élastique; après N secondes, il en a parcouru (1/100)(1 + 1/2 + … + 1/N). La série harmonique diverge, donc il arrive — après environ e¹⁰⁰ ≈ 10⁴³ secondes." },
+    },
+  ],
+
+  /* Logbook — photos from club nights. Files live in assets/img/logbook/ as
+     NAME-800.jpg (grid) and NAME-1600.jpg (full screen); w/h are the 800 size.
+     PLACEHOLDERS: NASA public-domain images standing in until the club's own
+     photos are added. */
+  gallery: [
+    { src: "perseids", w: 800, h: 425, date: "2026-08-12", title: "Perseids over the coulees", place: "Dark-sky site", credit: "NASA / Bill Ingalls", caption: "A long exposure on the peak night of the Perseid meteor shower.", fr: { title: "Les Perséides au-dessus des coulées", place: "Site sombre", caption: "Une longue pose pendant la nuit de pointe des Perséides." } },
+    { src: "eclipse-table", w: 800, h: 533, date: "2026-04-08", title: "Eclipse-viewing table", place: "Campus", credit: "NASA", caption: "Solar glasses, pinhole projectors and a lot of people looking up.", fr: { title: "Table d'observation de l'éclipse", place: "Campus", caption: "Lunettes solaires, projecteurs à sténopé et beaucoup de monde le nez en l'air." } },
+    { src: "orion", w: 800, h: 800, date: "2026-02-19", title: "The Orion Nebula, M42", place: "Club telescope", credit: "NASA, ESA / Hubble", caption: "The first deep-sky target most of us ever find. Stacked from many short exposures.", fr: { title: "La nébuleuse d'Orion, M42", place: "Télescope du club", caption: "La première cible du ciel profond que la plupart d'entre nous trouvons. Empilement de nombreuses poses courtes." } },
+    { src: "aurora", w: 800, h: 533, date: "2026-05-10", title: "Aurora, seen from above", place: "Space Station", credit: "NASA / ISS Expedition 72", caption: "The night the aurora reached southern Alberta — this is what it looked like from orbit.", fr: { title: "L'aurore vue d'en haut", place: "Station spatiale", caption: "La nuit où l'aurore a atteint le sud de l'Alberta — voici ce que ça donnait vu de l'orbite." } },
+    { src: "blue-moon", w: 800, h: 533, date: "2026-08-19", title: "Blue moon rising", place: "Oldman River valley", credit: "NASA", caption: "The second full moon of the month, low and orange through the haze.", fr: { title: "Lever de la lune bleue", place: "Vallée de la rivière Oldman", caption: "La deuxième pleine lune du mois, basse et orangée à travers la brume." } },
+    { src: "andromeda", w: 800, h: 800, date: "2026-10-10", title: "Andromeda, M31", place: "Club telescope", credit: "NASA / JPL-Caltech", caption: "Two and a half million light-years away, and still visible to the naked eye from a dark site.", fr: { title: "Andromède, M31", place: "Télescope du club", caption: "À deux millions et demi d'années-lumière, et pourtant visible à l'œil nu depuis un site sombre." } },
+    { src: "neowise", w: 800, h: 645, date: "2026-07-14", title: "A comet at dusk", place: "West of the city", credit: "NASA / Bill Ingalls", caption: "Look low in the northwest just after twilight — binoculars help.", fr: { title: "Une comète au crépuscule", place: "À l'ouest de la ville", caption: "Regardez bas au nord-ouest juste après le crépuscule — des jumelles aident." } },
+    { src: "trails", w: 800, h: 532, date: "2026-09-26", title: "Star trails", place: "Long exposure", credit: "NASA / Don Pettit", caption: "Stack enough exposures and the sky turns into streaks of light.", fr: { title: "Filés d'étoiles", place: "Longue pose", caption: "Empilez assez de poses et le ciel devient une pluie de traits de lumière." } },
   ],
 };
