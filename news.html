@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="meta.news.title">News — PAMA · University of Lethbridge</title>
+  <meta name="description" content="Announcements, stories and updates from PAMA, the Physics, Astronomy &amp; Mathematics Association." data-i18n-attr="content:meta.news.desc">
+  <meta name="theme-color" content="#04060c">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PAMA">
+  <meta property="og:title" content="PAMA News">
+  <meta property="og:description" content="Announcements, event recaps and stories from the club.">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/chrome.js"></script>
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+</head>
+<body id="top">
+  <site-header active="news"></site-header>
+
+  <div class="page">
+    <main id="main">
+
+      <section class="page-hero" style="--hero-pos: 80% 50%">
+        <div class="container page-hero__inner">
+          <div>
+            <p class="eyebrow intro" data-i18n="news.hero.eyebrow">News</p>
+            <h1 class="h1 intro" style="--d:80ms" data-i18n="news.hero.title">Transmissions.</h1>
+            <p class="lead intro" style="--d:160ms" data-i18n="news.hero.lead">Announcements, event recaps and stories from the club. For day-to-day updates, follow us on Instagram.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="all-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow reveal"><span class="idx">01</span><span data-i18n="news.list.eyebrow">Archive</span></p>
+            <h2 class="h2 reveal" id="all-title" data-i18n="news.list.title">All posts</h2>
+          </div>
+          <div class="article-list reveal" data-news-list></div>
+        </div>
+      </section>
+
+      <section class="section cta" aria-labelledby="follow-title">
+        <div class="container">
+          <p class="eyebrow eyebrow--plain reveal" data-i18n="news.cta.eyebrow">Stay in the loop</p>
+          <h2 class="h1 cta__title reveal" id="follow-title" data-i18n="news.cta.title">Never miss a clear night.</h2>
+          <p class="lead reveal" data-i18n="news.cta.lead">Short-notice observing sessions and event reminders go out on Instagram first.</p>
+          <div class="btn-row reveal">
+            <a class="btn btn--solid" data-link="instagram" target="_blank" rel="noopener"><span data-i18n="news.cta.btn">Follow @uleth.pama</span> <span class="i i-out" aria-hidden="true"></span></a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+    <site-footer></site-footer>
+  </div>
+</body>
+</html>

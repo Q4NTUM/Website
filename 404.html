@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <!-- The site lives at the domain root (ulethpama.space), so resolve assets from "/"
+       even when this page is served for a nested URL like /events/foo. -->
+  <base href="/">
+  <script>
+    // Old links from the previous site used capitalised file names
+    (function () {
+      var moved = { "/Team.html": "team.html", "/Events.html": "events.html", "/Website/": "", "/Website/index.html": "" };
+      var p = location.pathname, to = moved[p] ?? (p.indexOf("/Website/") === 0 ? p.slice(9).toLowerCase() : null);
+      if (to !== null) location.replace("/" + to + location.search + location.hash);
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="meta.404.title">Lost in space — PAMA</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#04060c">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/chrome.js"></script>
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+</head>
+<body id="top">
+  <site-header></site-header>
+
+  <div class="page">
+    <main id="main">
+      <section class="section cta lost">
+        <svg class="cta__orbit" viewBox="0 0 400 400" aria-hidden="true" fill="none" stroke="currentColor" stroke-width=".4">
+          <circle cx="200" cy="200" r="120"/><circle cx="200" cy="200" r="160" stroke-dasharray="1 4"/><circle cx="200" cy="200" r="198"/>
+        </svg>
+        <div class="container">
+          <p class="eyebrow eyebrow--plain intro" data-i18n="404.eyebrow">Error 404 · Signal lost</p>
+          <h1 class="display cta__title intro" style="--d:100ms" data-i18n="404.title">Lost in <span class="accent">space.</span></h1>
+          <p class="lead intro" style="--d:200ms" data-i18n="404.lead">This page has drifted beyond the observable universe. Let's get you back to familiar coordinates.</p>
+          <div class="btn-row intro" style="--d:300ms">
+            <a class="btn btn--solid" href="index.html"><span data-i18n="404.home">Return home</span> <span class="i i-arrow" aria-hidden="true"></span></a>
+            <a class="btn" href="events.html" data-i18n="404.events">Upcoming events</a>
+          </div>
+        </div>
+      </section>
+    </main>
+    <site-footer></site-footer>
+  </div>
+</body>
+</html>

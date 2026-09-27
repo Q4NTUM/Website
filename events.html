@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="meta.events.title">Events — PAMA · University of Lethbridge</title>
+  <meta name="description" content="Talks, stargazing nights, workshops, competitions and socials from PAMA at the University of Lethbridge." data-i18n-attr="content:meta.events.desc">
+  <meta name="theme-color" content="#04060c">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PAMA">
+  <meta property="og:title" content="PAMA Events">
+  <meta property="og:description" content="Talks, stargazing nights, workshops and socials — free and open to everyone.">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&amp;family=JetBrains+Mono:wght@400&amp;display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="assets/js/i18n.js"></script>
+  <script src="assets/js/chrome.js"></script>
+  <script src="assets/js/data.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+</head>
+<body id="top">
+  <site-header active="events"></site-header>
+
+  <div class="page">
+    <main id="main">
+
+      <section class="page-hero" style="--hero-pos: 70% 20%">
+        <div class="container page-hero__inner">
+          <div>
+            <p class="eyebrow intro" data-i18n="events.hero.eyebrow">Events</p>
+            <h1 class="h1 intro" style="--d:80ms" data-i18n="events.hero.title">Look up.<br>Show up.</h1>
+            <p class="lead intro" style="--d:160ms" data-i18n="events.hero.lead">Talks, observing nights, workshops and socials — free, open to everyone, and no background required.</p>
+          </div>
+          <p class="page-hero__meta intro" style="--d:240ms"><span data-i18n="events.hero.upcoming">Upcoming</span> <b data-upcoming-count>—</b><br><span data-i18n="events.hero.tz">Time zone</span> <b data-i18n="events.hero.tzv">Mountain Time</b><br><span data-i18n="events.hero.cost">Cost</span> <b data-i18n="events.hero.free">Free</b></p>
+        </div>
+      </section>
+
+      <!-- Upcoming -->
+      <section class="section" aria-labelledby="upcoming-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow reveal"><span class="idx">01</span><span data-i18n="events.cal.eyebrow">Calendar</span></p>
+            <h2 class="h2 reveal" id="upcoming-title" data-i18n="events.cal.title">Upcoming</h2>
+          </div>
+
+          <div class="filters reveal" role="group" aria-label="Filter events by type" data-i18n-attr="aria-label:events.filterLabel">
+            <button class="chip" type="button" data-filter="all" aria-pressed="true" data-i18n="events.f.all">All</button>
+            <button class="chip" type="button" data-filter="talk" aria-pressed="false" data-i18n="events.f.talk">Talks</button>
+            <button class="chip" type="button" data-filter="observing" aria-pressed="false" data-i18n="events.f.observing">Observing</button>
+            <button class="chip" type="button" data-filter="workshop" aria-pressed="false" data-i18n="events.f.workshop">Workshops</button>
+            <button class="chip" type="button" data-filter="competition" aria-pressed="false" data-i18n="events.f.competition">Competitions</button>
+            <button class="chip" type="button" data-filter="social" aria-pressed="false" data-i18n="events.f.social">Social</button>
+          </div>
+          <p class="sr-only" aria-live="polite" data-events-status></p>
+          <div data-events-full></div>
+        </div>
+      </section>
+
+      <!-- Recurring -->
+      <section class="section" aria-labelledby="weekly-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow reveal"><span class="idx">02</span><span data-i18n="events.weekly.eyebrow">Every week</span></p>
+            <h2 class="h2 reveal" id="weekly-title" data-i18n="events.weekly.title">Regular orbits</h2>
+            <p class="lead reveal" data-i18n="events.weekly.lead">Drop in any week during the fall and winter terms. No sign-up needed.</p>
+          </div>
+          <div class="grid grid--3" data-stagger>
+            <article class="card">
+              <div class="card__icon" data-art="lattice"></div>
+              <p class="card__kicker" data-i18n="events.weekly.c1.k">Tuesdays · 4–6 PM</p>
+              <h3 class="h4" data-i18n="events.weekly.c1.t">Study Hall</h3>
+              <p data-i18n="events.weekly.c1.p">Bring your problem sets. Upper-year volunteers circulate to help with first- and second-year physics, astronomy and math.</p>
+            </article>
+            <article class="card">
+              <div class="card__icon" data-art="spiral"></div>
+              <p class="card__kicker" data-i18n="events.weekly.c2.k">Alternate Thursdays · 6 PM</p>
+              <h3 class="h4" data-i18n="events.weekly.c2.t">Problem Night</h3>
+              <p data-i18n="events.weekly.c2.p">A themed puzzle set — Fermi problems, olympiad questions, famous paradoxes — solved in small groups, with snacks.</p>
+            </article>
+            <article class="card">
+              <div class="card__icon" data-art="orbit"></div>
+              <p class="card__kicker" data-i18n="events.weekly.c3.k">Clear nights near new moon</p>
+              <h3 class="h4" data-i18n="events.weekly.c3.t">Pop-up Observing</h3>
+              <p data-i18n="events.weekly.c3.p">When the forecast is good, we announce a short-notice observing session on Instagram. Follow us so you don't miss it.</p>
+            </article>
+          </div>
+          <div class="sky reveal mt-m" data-moon></div>
+          <p class="placeholder-note" data-i18n="events.weekly.note">Placeholder schedule — rooms and times to be confirmed each term</p>
+        </div>
+      </section>
+
+      <!-- Archive -->
+      <section class="section" aria-labelledby="past-title">
+        <div class="container">
+          <div class="section-head">
+            <p class="eyebrow reveal"><span class="idx">03</span><span data-i18n="events.past.eyebrow">Archive</span></p>
+            <h2 class="h2 reveal" id="past-title" data-i18n="events.past.title">Past events</h2>
+          </div>
+          <div class="event-list reveal" data-events-past></div>
+        </div>
+      </section>
+
+      <!-- Propose -->
+      <section class="section cta" aria-labelledby="propose-title">
+        <div class="container">
+          <p class="eyebrow eyebrow--plain reveal" data-i18n="events.cta.eyebrow">Have an idea?</p>
+          <h2 class="h1 cta__title reveal" id="propose-title" data-i18n="events.cta.title">Propose a talk, workshop or trip.</h2>
+          <p class="lead reveal" data-i18n="events.cta.lead">Members run many of our best events. Tell us what you'd like to see — or present — and we'll help make it happen.</p>
+          <div class="btn-row reveal">
+            <a class="btn btn--solid" href="join.html#contact"><span data-i18n="events.cta.btn">Get in touch</span> <span class="i i-arrow" aria-hidden="true"></span></a>
+          </div>
+        </div>
+      </section>
+
+    </main>
+    <site-footer></site-footer>
+  </div>
+</body>
+</html>
