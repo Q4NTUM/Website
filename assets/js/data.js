@@ -13,42 +13,42 @@
    EQUATIONS     html is inserted as-is (trusted markup)
    VENUES · PROBLEMS · GALLERY — see the notes above each list further down
 
-   Everything below is PLACEHOLDER content for the draft site.
    ========================================================================== */
 
 window.PAMA_DATA = {
   events: [
     // ---- Past (kept for the archive) ----
     {
-      id: "clubs-fair-2026", cat: "social",
-      title: "Clubs Week Booth",
-      start: "2026-09-10 10:00", end: "2026-09-10 15:00",
-      location: "Students' Union Building",
-      desc: "Our first public appearance as PAMA. Spectroscopes, a pocket-sized cloud chamber and a lot of conversations about black holes.",
+      id: "clubs-rush-2026", cat: "social",
+      title: "Club Rush Booth",
+      start: "2026-09-14 10:00", end: "2026-09-14 15:00",
+      location: "University Hall",
+      desc: "Our first public appearance as PAMA. Hosted a club signup, where over 30 new members joined the club!",
     },
     {
-      id: "welcome-mixer-2026", cat: "social",
-      title: "Welcome Mixer",
-      start: "2026-09-17 17:30", end: "2026-09-17 19:30",
-      location: "Science Commons, Atrium",
-      desc: "Pizza, introductions and a very competitive round of physics Pictionary. Bring a friend from any program.",
+      id: "cosmic-cinema-sept", cat: "social",
+      title: "Cosmic Cinema: Project Hail Mary",
+      start: "2026-09-18 17:30", end: "2026-09-18 19:30",
+      location: "Science Commons, SA8005",
+      desc: "PAMA's first Cosmic Cinema event. Meet the members of PAMA, and come to watch Project Hail Mary. Bring a friend from any program.",
     },
     {
-      id: "cosmic-cinema-contact", cat: "social",
-      title: "Cosmic Cinema: Contact",
-      start: "2026-09-24 19:00", end: "2026-09-24 21:45",
-      location: "Science Commons, Lecture Theatre",
-      desc: "The season opener of our film series, followed by a short discussion on SETI and the Drake equation.",
+      id: "jamboree-2026-volunteering", cat: "social",
+      title: "Volunteering for Jamboree music festival",
+      start: "2026-09-13 11:00", end: "2026-09-13 15:00",
+      location: "Helper Hall",
+      desc: "Club volunteering opportunity for the Jamboree music festival. Free pizza is available for everyone, and don't forget to mention your involvement with PAMA!",
     },
-
+     
     // ---- Upcoming ----
     {
-      id: "cosmic-cinema-interstellar", cat: "social",
-      title: "Cosmic Cinema: Interstellar",
-      start: "2026-10-01 19:00", end: "2026-10-01 22:00",
-      location: "Science Commons, Lecture Theatre",
-      desc: "Time dilation, tidal forces and a tesseract. A graduate student walks through the real physics behind Gargantua before the lights go down.",
+      id: "cosmic-cinema-planned", cat: "social",
+      title: "Cosmic Cinema: Planned",
+      start: "2027-10-01 19:00", end: "2027-10-01 22:00",
+      location: "Science Commons, SA8005",
+      desc: "Our next Cosmic Cinema event is currently being planned. Stay on the lookout!",
     },
+   /*
     {
       id: "problem-night-fermi", cat: "workshop",
       title: "Problem Night: Fermi Estimation",
@@ -140,18 +140,20 @@ window.PAMA_DATA = {
       location: "Students' Union Building",
       desc: "Pie, a digit-recitation challenge and a Buffon's-needle experiment to estimate π live. (Celebrated on the Friday before 3.14.)",
     },
+    */
   ],
 
   news: [
     {
-      id: "cosmic-cinema-returns", date: "2026-09-20", tag: "Events", art: "orbit",
-      title: "Cosmic Cinema is back — under the stars, sort of",
-      excerpt: "Our film series returns for Fall 2026, with a short talk before every screening.",
+      id: "cosmic-cinema-returns", date: "2026-09-10", tag: "Events", art: "orbit",
+      title: "Official launch of Cosmic Cinema",
+      excerpt: "Our film event series, an opportunity to meet members of PAMA and enjoy a good movie!",
       body: [
-        "Cosmic Cinema, the most popular tradition inherited from the old Physics Club, returns this term with a new format: every screening opens with a ten-minute talk by a student or graduate volunteer on the real science behind the film.",
-        "We opened with Contact on September 24 and continue with Interstellar on October 1. Screenings are free and open to everyone. Popcorn is on us; suggestions for next term's lineup are welcome on Instagram.",
+        "Our Cosmic Cinema series is open to all students. Meet us for our first event on September 18, 2026 to watch Project Hail Mary and meet the fellow members of PAMA. Feel free to bring a friend and popcorn.",
+        "If you have suggestions for future Cosmic Cinema events, please feel free to let us know!",
       ],
     },
+    /*
     {
       id: "meet-the-exec", date: "2026-09-12", tag: "Community", art: "constellation",
       title: "Meet the 2026–27 executive team",
@@ -161,17 +163,18 @@ window.PAMA_DATA = {
         "You can find the full team, and what each role does, on our Team page. Executive meetings are open to members; if you'd like to help out, we're always looking for volunteers.",
       ],
     },
+    */
     {
-      id: "ratified", date: "2026-09-05", tag: "Announcement", art: "lattice",
+      id: "ratified", date: "2026-09-27", tag: "Announcement", art: "lattice",
       title: "PAMA is officially a ratified student club",
       excerpt: "We're now a recognised club under the Students' Union, which means funding, room bookings and a lot more events.",
       body: [
-        "After a summer of paperwork, PAMA has been ratified as an official student club. Ratification lets us book rooms on campus, apply for club funding and partner with academic departments on events.",
+        "After a few weeks of paperwork, PAMA has been ratified as an official student club. Ratification lets us book rooms on campus, apply for club funding and partner with academic departments on events.",
         "Thank you to everyone who signed on as a founding member. Membership is free and open to every student, whatever your program.",
       ],
     },
     {
-      id: "physics-club-to-pama", date: "2026-08-28", tag: "Story", art: "wave",
+      id: "physics-club-to-pama", date: "2026-08-15", tag: "Story", art: "wave",
       title: "From Physics Club to PAMA: why we changed our name",
       excerpt: "Same curiosity, a wider sky. Why astronomy and mathematics now share top billing.",
       body: [
