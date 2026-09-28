@@ -52,10 +52,6 @@
   window.PAMA = { ROOT, LINKS, ICONS, NAV };
 
   const logo = ROOT + "assets/img/pama-logo-white-sm.png";
-  const langSwitch = `
-    <div class="lang" role="group" aria-label="Language" data-i18n-attr="aria-label:ui.language">
-      <button type="button" data-lang="en" aria-pressed="true" lang="en" aria-label="English">EN</button><span aria-hidden="true">/</span><button type="button" data-lang="fr" aria-pressed="false" lang="fr" aria-label="Français">FR</button>
-    </div>`;
 
   class SiteHeader extends HTMLElement {
     connectedCallback() {
@@ -64,30 +60,29 @@
       const items = NAV.map((n, i) => `
           <li><a class="nav-link" href="${ROOT + n.href}" style="--i:${i}"${n.id === active ? ' aria-current="page"' : ""}>
             <span class="nav-link__num" aria-hidden="true">${String(i + 1).padStart(2, "0")}</span>
-            <span class="nav-link__mask"><span class="nav-link__label" data-i18n="nav.${n.id}">${n.label}</span></span>
+            <span class="nav-link__mask"><span class="nav-link__label">${n.label}</span></span>
             <span class="nav-link__go i i-arrow" aria-hidden="true"></span>
           </a></li>`).join("");
 
       this.innerHTML = `
-      <a class="skip-link" href="#main" data-i18n="ui.skip">Skip to content</a>
+      <a class="skip-link" href="#main">Skip to content</a>
       <header class="site-header" data-header>
         <!-- the transition name sits on the capsule: on the header it would stop the capsule's backdrop blur -->
         <div class="site-header__inner" style="view-transition-name: site-header">
           <div class="site-header__left">
-            <a class="brand" href="${ROOT}index.html" aria-label="PAMA — home" data-i18n-attr="aria-label:ui.home"><img src="${logo}" alt="PAMA" width="70" height="17"></a>
+            <a class="brand" href="${ROOT}index.html" aria-label="PAMA — home"><img src="${logo}" alt="PAMA" width="70" height="17"></a>
             <div class="socials">
-              <a href="${LINKS.instagram}" target="_blank" rel="noopener" aria-label="PAMA on Instagram" data-i18n-attr="aria-label:ui.instagram">${ICONS.instagram}</a>
-              ${LINKS.email ? `<a href="${LINKS.email}" aria-label="Email PAMA" data-i18n-attr="aria-label:ui.email">${ICONS.mail}</a>` : ""}
+              <a href="${LINKS.instagram}" target="_blank" rel="noopener" aria-label="PAMA on Instagram">${ICONS.instagram}</a>
+              ${LINKS.email ? `<a href="${LINKS.email}" aria-label="Email PAMA">${ICONS.mail}</a>` : ""}
             </div>
           </div>
           <div class="site-header__center">
-            <a class="btn btn--sm" href="${onJoin ? LINKS.joinForm : ROOT + "join.html"}"${onJoin ? ' target="_blank" rel="noopener"' : ""} data-i18n="ui.joinNow">Join now</a>
+            <a class="btn btn--sm" href="${onJoin ? LINKS.joinForm : ROOT + "join.html"}"${onJoin ? ' target="_blank" rel="noopener"' : ""}>Join now</a>
           </div>
           <div class="site-header__right">
-            <button class="search-btn" type="button" data-palette-open aria-label="Search the site" data-i18n-attr="aria-label:pal.open">${ICONS.search}<kbd aria-hidden="true">/</kbd></button>
-            ${langSwitch}
+            <button class="search-btn" type="button" data-palette-open aria-label="Search the site">${ICONS.search}<kbd aria-hidden="true">/</kbd></button>
             <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" data-menu-toggle>
-              <span class="menu-toggle__words"><span data-i18n="ui.menu">Menu</span><span data-i18n="ui.close" aria-hidden="true">Close</span></span>
+              <span class="menu-toggle__words"><span>Menu</span><span aria-hidden="true">Close</span></span>
               <span class="menu-toggle__icon" aria-hidden="true"><span></span><span></span></span>
             </button>
           </div>
@@ -95,8 +90,8 @@
       </header>
       <div class="nav-scrim" data-menu-scrim aria-hidden="true"></div>
       <div class="nav-drawer" id="site-menu" data-menu inert>
-        <p class="nav-drawer__eyebrow"><span data-i18n="menu.title">Navigate</span><span>PAMA · U of L</span></p>
-        <nav aria-label="Primary" data-i18n-attr="aria-label:ui.primaryNav">
+        <p class="nav-drawer__eyebrow"><span>Navigate</span><span>PAMA · U of L</span></p>
+        <nav aria-label="Primary">
           <ol class="nav-list">${items}
           </ol>
         </nav>
@@ -106,14 +101,10 @@
             <span class="nav-drawer__next-text"><span data-teaser-text>See what's on</span> <span class="i i-arrow" aria-hidden="true"></span></span>
           </a>
           <div>
-            <p class="nav-drawer__label" data-i18n="menu.follow">Follow</p>
+            <p class="nav-drawer__label">Follow</p>
             <a class="nav-drawer__link" href="${LINKS.instagram}" target="_blank" rel="noopener">@uleth.pama <span class="i i-out" aria-hidden="true"></span></a>
           </div>
-          <div>
-            <p class="nav-drawer__label" data-i18n="ui.language">Language</p>
-            ${langSwitch}
-          </div>
-          <a class="btn btn--solid nav-drawer__cta" href="${onJoin ? LINKS.joinForm : ROOT + "join.html"}"${onJoin ? ' target="_blank" rel="noopener"' : ""}><span data-i18n="menu.cta">Become a member</span> <span class="i i-arrow" aria-hidden="true"></span></a>
+          <a class="btn btn--solid nav-drawer__cta" href="${onJoin ? LINKS.joinForm : ROOT + "join.html"}"${onJoin ? ' target="_blank" rel="noopener"' : ""}><span>Become a member</span> <span class="i i-arrow" aria-hidden="true"></span></a>
         </div>
       </div>`;
     }
@@ -123,7 +114,7 @@
     connectedCallback() {
       const year = new Date().getFullYear();
       const col = (ids) => NAV.filter((n) => ids.includes(n.id))
-        .map((n) => `<li><a href="${ROOT + n.href}" data-i18n="nav.${n.id}">${n.label}</a></li>`).join("");
+        .map((n) => `<li><a href="${ROOT + n.href}">${n.label}</a></li>`).join("");
 
       this.innerHTML = `
       <footer class="site-footer">
@@ -132,34 +123,34 @@
           <div class="footer-grid">
             <div class="footer-brand">
               <img src="${logo}" alt="PAMA" width="90" height="22" loading="lazy">
-              <p data-i18n="footer.about">The Physics, Astronomy &amp; Mathematics Association — a student-run community at the University of Lethbridge for anyone curious about how the universe works.</p>
+              <p>The Physics, Astronomy &amp; Mathematics Association — a student-run community at the University of Lethbridge for anyone curious about how the universe works.</p>
             </div>
             <div>
-              <p class="footer-col__title" data-i18n="footer.club">The club</p>
+              <p class="footer-col__title">The club</p>
               <ul>${col(["about", "team", "news", "logbook"])}</ul>
             </div>
             <div>
-              <p class="footer-col__title" data-i18n="footer.involved">Get involved</p>
-              <ul>${col(["events", "resources", "join"])}<li><a href="${LINKS.joinForm}" target="_blank" rel="noopener"><span data-i18n="footer.form">Membership form</span> <span class="i i-out" aria-hidden="true"></span></a></li></ul>
+              <p class="footer-col__title">Get involved</p>
+              <ul>${col(["events", "resources", "join"])}<li><a href="${LINKS.joinForm}" target="_blank" rel="noopener"><span>Membership form</span> <span class="i i-out" aria-hidden="true"></span></a></li></ul>
             </div>
             <div>
-              <p class="footer-col__title" data-i18n="footer.connect">Connect</p>
+              <p class="footer-col__title">Connect</p>
               <ul>
                 <li><a href="${LINKS.instagram}" target="_blank" rel="noopener">Instagram <span class="i i-out" aria-hidden="true"></span></a></li>
-                ${LINKS.email ? `<li><a href="${LINKS.email}" data-i18n="footer.email">Email</a></li>` : ""}
-                <li><span data-i18n="footer.uni">University of Lethbridge</span><br>4401 University Dr W<br>Lethbridge, AB</li>
+                ${LINKS.email ? `<li><a href="${LINKS.email}">Email</a></li>` : ""}
+                <li><span>University of Lethbridge</span><br>4401 University Dr W<br>Lethbridge, AB</li>
               </ul>
             </div>
           </div>
-          <div class="footer-ack"><p data-i18n="footer.ack">We acknowledge that the University of Lethbridge is located on the traditional territory of the Blackfoot Confederacy, in Treaty 7 territory, and we honour the Blackfoot people and their long-standing relationship with this land and its skies.</p><p class="footer-credit" data-i18n="footer.imagery">Imagery: NASA, ESA, CSA, STScI, JPL-Caltech. Home: Bubble Nebula (NGC 7635).</p></div>
+          <div class="footer-ack"><p>We acknowledge that the University of Lethbridge is located on the traditional territory of the Blackfoot Confederacy, in Treaty 7 territory, and we honour the Blackfoot people and their long-standing relationship with this land and its skies.</p><p class="footer-credit">Imagery: NASA, ESA, CSA, STScI, JPL-Caltech. Home: Bubble Nebula (NGC 7635).</p></div>
           <div class="footer-bottom">
-            <span>© ${year} PAMA · <span data-i18n="footer.uni">University of Lethbridge</span></span>
-            <span class="lst" role="group" aria-label="Local sidereal time in Lethbridge" data-i18n-attr="aria-label:footer.lstLabel">
-              <span data-i18n="footer.coords">49.68° N · 112.86° W</span>
-              <span data-i18n-attr="title:footer.lstTitle" title="Local sidereal time — which part of the sky is overhead right now"><span data-i18n="footer.lst">LST</span> <b data-lst>--:--:--</b></span>
+            <span>© ${year} PAMA · <span>University of Lethbridge</span></span>
+            <span class="lst" role="group" aria-label="Local sidereal time in Lethbridge">
+              <span>49.68° N · 112.86° W</span>
+              <span title="Local sidereal time — which part of the sky is overhead right now"><span>LST</span> <b data-lst>--:--:--</b></span>
             </span>
-            <button class="motion-toggle" type="button" role="switch" aria-checked="true" data-motion-toggle><span data-i18n="footer.motion">Motion</span> <b data-motion-state>On</b></button>
-            <a href="#top" data-to-top data-i18n="footer.top">Back to top ↑</a>
+            <button class="motion-toggle" type="button" role="switch" aria-checked="true" data-motion-toggle><span>Motion</span> <b data-motion-state>On</b></button>
+            <a href="#top" data-to-top>Back to top ↑</a>
           </div>
         </div>
       </footer>`;

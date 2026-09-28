@@ -16,9 +16,6 @@
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const { ICONS = {}, ROOT = "" } = window.PAMA || {};
   const DATA = window.PAMA_DATA || {};
-  const I18N = window.PAMA_I18N || { lang: "en", locale: "en-US", t: (k, f) => f, pick: (o, f) => o[f], apply() {} };
-  const t = (k, f) => I18N.t(k, f);
-  const fr = () => I18N.lang === "fr";
   const NBSP = "\u00a0";
   const TZ = "America/Edmonton";
   const LON = -112.86;
@@ -683,48 +680,39 @@
   }
 
   /* ------------------------------------------------------------------
-     Formatting (locale follows the language switch)
+     Formatting
   ------------------------------------------------------------------ */
   const F = {};
   function buildFormats() {
-    const mk = (o) => new Intl.DateTimeFormat(I18N.locale, { timeZone: TZ, ...o });
+    const mk = (o) => new Intl.DateTimeFormat("en-US", { timeZone: TZ, ...o });
     F.day = mk({ day: "2-digit" });
     F.dayNum = mk({ day: "numeric" });
     F.mon = mk({ month: "short" });
     F.wk = mk({ weekday: "short" });
     F.time = mk({ hour: "numeric", minute: "2-digit" });
-    F.hm = new Intl.DateTimeFormat("en-GB", { timeZone: TZ, hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
     F.monthYear = mk({ month: "long", year: "numeric" });
-    F.pct = new Intl.NumberFormat(I18N.locale, { style: "percent" });
-    F.plural = new Intl.PluralRules(I18N.locale);
+    F.pct = new Intl.NumberFormat("en-US", { style: "percent" });
+    F.plural = new Intl.PluralRules("en-US");
   }
   const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-  const shortLabel = (s) => s.replace(/\.$/, ""); // "oct." → "oct" for the tiny caps label only
+  const shortLabel = (s) => s.replace(/\.$/, ""); // "Oct." → "Oct" for the tiny caps label only
 
-  // "19 h" / "19 h 30" in French; "7:00 PM" in English
+  // "7:00 PM"
   function clock(d) {
-    if (!fr()) return F.time.format(d).replace(" ", NBSP);
-    const [hh, mm] = F.hm.format(d).split(":");
-    return `${+hh}${NBSP}h${mm === "00" ? "" : NBSP + mm}`;
+    return F.time.format(d).replace(" ", NBSP);
   }
   function timeRange(a, b) {
-    if (!fr()) {
-      try { if (F.time.formatRange) return F.time.formatRange(a, b).replace(/ (AM|PM)/g, NBSP + "$1"); } catch (e) { /* fall through */ }
-    }
+    try { if (F.time.formatRange) return F.time.formatRange(a, b).replace(/ (AM|PM)/g, NBSP + "$1"); } catch (e) { /* fall through */ }
     return `${clock(a)} – ${clock(b)}`;
   }
-  // "Oct 1" / "1er oct." — used in running text
+  // "Oct 1" — used in running text
   function dayMonth(d) {
-    const n = +F.dayNum.format(d);
-    if (fr()) return `${n === 1 ? "1er" : n}${NBSP}${F.mon.format(d)}`;
-    return `${F.mon.format(d)}${NBSP}${n}`;
+    return `${F.mon.format(d)}${NBSP}${+F.dayNum.format(d)}`;
   }
-  // "September 20, 2026" / "20 septembre 2026" (news dates are calendar dates, no TZ)
+  // "September 20, 2026" (news dates are calendar dates, no TZ)
   function longDate(ymd) {
     const d = new Date(ymd + "T12:00:00Z");
-    const f = (o) => new Intl.DateTimeFormat(I18N.locale, { timeZone: "UTC", ...o }).format(d);
-    if (fr()) { const n = d.getUTCDate(); return `${n === 1 ? "1er" : n} ${f({ month: "long" })} ${f({ year: "numeric" })}`; }
-    return f({ month: "long", day: "numeric", year: "numeric" });
+    return new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "long", day: "numeric", year: "numeric" }).format(d);
   }
 
   /* ------------------------------------------------------------------
@@ -739,28 +727,28 @@
   function gcalUrl(ev) {
     const st = (d) => d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
     const q = new URLSearchParams({
-      action: "TEMPLATE", text: "PAMA · " + I18N.pick(ev, "title"), dates: `${st(ev.s)}/${st(ev.e)}`,
-      location: `${I18N.pick(ev, "location")}, ${t("footer.uni", "University of Lethbridge")}`,
-      details: I18N.pick(ev, "desc"), ctz: TZ,
+      action: "TEMPLATE", text: "PAMA · " + ev.title, dates: `${st(ev.s)}/${st(ev.e)}`,
+      location: `${ev.location}, University of Lethbridge`,
+      details: ev.desc, ctz: TZ,
     });
     return "https://calendar.google.com/calendar/render?" + q.toString();
   }
 
   function eventRow(ev, { isNext = false, isPast = false, hl = 3 } = {}) {
-    const title = I18N.pick(ev, "title"), desc = I18N.pick(ev, "desc"), loc = I18N.pick(ev, "location");
+    const title = ev.title, desc = ev.desc, loc = ev.location;
     const H = "h" + hl;
     const live = !isPast && ev.s <= new Date();
-    const addLabel = t("events.addToFmt", "Add “{title}” to your calendar").replace("{title}", title);
+    const addLabel = "Add “{title}” to your calendar".replace("{title}", title);
     const calendar = isPast ? "" : `
       <details class="cal">
-        <summary class="icon-btn" aria-label="${esc(addLabel)}" title="${esc(t("events.addTo", "Add to calendar"))}">${ICONS.calendar || "+"}</summary>
+        <summary class="icon-btn" aria-label="${esc(addLabel)}" title="${esc("Add to calendar")}">${ICONS.calendar || "+"}</summary>
         <div class="cal__menu">
           <a href="${esc(gcalUrl(ev))}" target="_blank" rel="noopener">Google Calendar</a>
-          <button type="button" data-ics="${esc(ev.id)}">${esc(t("events.ics", "Apple / Outlook (.ics)"))}</button>
+          <button type="button" data-ics="${esc(ev.id)}">${esc("Apple / Outlook (.ics)")}</button>
         </div>
       </details>`;
-    const flag = live ? `<span class="tag tag--next">${esc(t("events.live", "Happening now"))}</span>`
-      : isNext ? `<span class="tag tag--next">${esc(t("events.next", "Next up"))}</span>` : "";
+    const flag = live ? `<span class="tag tag--next">${esc("Happening now")}</span>`
+      : isNext ? `<span class="tag tag--next">${esc("Next up")}</span>` : "";
     return `
       <article class="event${isPast ? " is-past" : ""}" id="${esc(evId(ev))}" data-cat="${esc(ev.cat)}">
         <time class="event__date" datetime="${ev.s.toISOString()}">
@@ -769,7 +757,7 @@
         </time>
         <div class="event__body">
           <div class="event__tags">
-            <span class="tag">${esc(t("cat." + ev.cat, CATS[ev.cat] || ev.cat))}</span>${flag}
+            <span class="tag">${esc(CATS[ev.cat] || ev.cat)}</span>${flag}
           </div>
           <${H} class="event__title"><a class="event__link" href="${esc(eventUrl(ev))}">${esc(title)}</a></${H}>
           <p class="event__desc">${esc(desc)}</p>
@@ -784,7 +772,7 @@
 
   let currentCat = "all";
   function renderEvents() {
-    const empty = `<p class="empty">${esc(t("events.none", "New events are being planned — check back soon."))}</p>`;
+    const empty = `<p class="empty">${esc("New events are being planned — check back soon.")}</p>`;
     $$("[data-events-upcoming]").forEach((el) => {
       const n = parseInt(el.dataset.eventsUpcoming, 10) || 3;
       el.innerHTML = upcoming.slice(0, n).map((ev, i) => eventRow(ev, { isNext: i === 0 })).join("") || empty;
@@ -793,7 +781,7 @@
     const full = $("[data-events-full]");
     if (full) {
       const list = upcoming.filter((e) => currentCat === "all" || e.cat === currentCat);
-      if (!list.length) full.innerHTML = currentCat === "all" ? empty : `<p class="empty">${esc(t("events.noneCat", "Nothing scheduled in this category yet — new events are added every few weeks."))}</p>`;
+      if (!list.length) full.innerHTML = currentCat === "all" ? empty : `<p class="empty">${esc("Nothing scheduled in this category yet — new events are added every few weeks.")}</p>`;
       else {
         let out = "", month = "";
         list.forEach((ev) => {
@@ -809,9 +797,9 @@
     if (archive) {
       const rows = past.map((ev) => eventRow(ev, { isPast: true }));
       archive.innerHTML = !rows.length
-        ? `<p class="empty">${esc(t("events.archiveEmpty", "The archive starts with our first event."))}</p>`
+        ? `<p class="empty">${esc("The archive starts with our first event.")}</p>`
         : rows.slice(0, ARCHIVE_VISIBLE).join("") + (rows.length > ARCHIVE_VISIBLE
-          ? `<details class="archive-more"><summary class="link">${esc(t("events.older", "Show older events"))} (${rows.length - ARCHIVE_VISIBLE})</summary>${rows.slice(ARCHIVE_VISIBLE).join("")}</details>` : "");
+          ? `<details class="archive-more"><summary class="link">${esc("Show older events")} (${rows.length - ARCHIVE_VISIBLE})</summary>${rows.slice(ARCHIVE_VISIBLE).join("")}</details>` : "");
     }
 
     // Hero teaser: next event, or the latest news if nothing is scheduled
@@ -820,12 +808,12 @@
       if (upcoming[0]) {
         const ev = upcoming[0];
         teaser.href = eventUrl(ev);
-        kicker.textContent = ev.s <= new Date() ? t("events.live", "Happening now") : t("events.next", "Next up");
-        text.textContent = `${I18N.pick(ev, "title")}${NBSP}— ${dayMonth(ev.s)}`;
+        kicker.textContent = ev.s <= new Date() ? "Happening now" : "Next up";
+        text.textContent = `${ev.title}${NBSP}— ${dayMonth(ev.s)}`;
       } else if (posts[0]) {
         teaser.href = ROOT + "news.html#" + posts[0].id;
-        kicker.textContent = t("news.latest", "Latest");
-        text.textContent = I18N.pick(posts[0], "title");
+        kicker.textContent = "Latest";
+        text.textContent = posts[0].title;
       }
     });
     $$("[data-upcoming-count]").forEach((el) => { el.textContent = String(upcoming.length).padStart(2, "0"); });
@@ -836,7 +824,7 @@
     if (!status) return;
     const n = upcoming.filter((e) => currentCat === "all" || e.cat === currentCat).length;
     const form = F.plural.select(n) === "one" ? "one" : "other";
-    status.textContent = t("events.showing." + form, form === "one" ? "Showing {n} event" : "Showing {n} events").replace("{n}", n);
+    status.textContent = (form === "one" ? "Showing {n} event" : "Showing {n} events").replace("{n}", n);
   }
 
   function eventsUI() {
@@ -907,9 +895,9 @@
       "BEGIN:VEVENT",
       `UID:${ev.id}@ulethpama.space`, `DTSTAMP:${stamp(new Date())}`,
       `DTSTART:${stamp(ev.s)}`, `DTEND:${stamp(ev.e)}`,
-      `SUMMARY:${txt("PAMA · " + I18N.pick(ev, "title"))}`,
-      `LOCATION:${txt(I18N.pick(ev, "location") + ", " + t("footer.uni", "University of Lethbridge"))}`,
-      `DESCRIPTION:${txt(I18N.pick(ev, "desc"))}`,
+      `SUMMARY:${txt("PAMA · " + ev.title)}`,
+      `LOCATION:${txt(ev.location + ", " + "University of Lethbridge")}`,
+      `DESCRIPTION:${txt(ev.desc)}`,
       "END:VEVENT", "END:VCALENDAR",
     ].map(fold).join("\r\n");
 
@@ -956,22 +944,22 @@
     const title = $("[data-ev-title]"), lead = $("[data-ev-lead]"), actions = $("[data-ev-actions]"), pass = $("[data-ev-pass]");
     const more = $("[data-ev-more]");
     const others = upcoming.filter((e) => e !== ev).slice(0, 3);
-    if (more) more.innerHTML = others.map((e, i) => eventRow(e, { isNext: !ev && i === 0 })).join("") || `<p class="empty">${esc(t("events.none", "New events are being planned — check back soon."))}</p>`;
+    if (more) more.innerHTML = others.map((e, i) => eventRow(e, { isNext: !ev && i === 0 })).join("") || `<p class="empty">${esc("New events are being planned — check back soon.")}</p>`;
     clearInterval(evTimer);
 
     if (!ev) {
-      document.title = `${t("ev.missing", "Event not found")} — PAMA`;
-      title.textContent = t("ev.missing", "Event not found");
-      lead.textContent = t("ev.missingLead", "It may have been renamed or removed. The full calendar has everything that's coming up.");
-      actions.innerHTML = `<a class="btn btn--solid" href="${ROOT}events.html"><span>${esc(t("home.events.cta", "Full calendar"))}</span> <span class="i i-arrow" aria-hidden="true"></span></a>`;
+      document.title = `Event not found — PAMA`;
+      title.textContent = "Event not found";
+      lead.textContent = "It may have been renamed or removed. The full calendar has everything that's coming up.";
+      actions.innerHTML = `<a class="btn btn--solid" href="${ROOT}events.html"><span>${esc("Full calendar")}</span> <span class="i i-arrow" aria-hidden="true"></span></a>`;
       pass.innerHTML = "";
       $$("[data-ev-body], [data-ev-where]").forEach((s) => { s.hidden = true; });
       return;
     }
 
-    const T = I18N.pick(ev, "title"), D = I18N.pick(ev, "desc"), L = I18N.pick(ev, "location");
+    const T = ev.title, D = ev.desc, L = ev.location;
     const isPast = ev.e < new Date();
-    const catLabel = t("cat." + ev.cat, CATS[ev.cat] || ev.cat);
+    const catLabel = CATS[ev.cat] || ev.cat;
     document.title = `${T} — PAMA`;
     const md = $('meta[name="description"]');
     if (md) md.setAttribute("content", D);
@@ -979,28 +967,28 @@
     lead.textContent = D;
 
     actions.innerHTML = isPast
-      ? `<span class="tag">${esc(t("ev.ended", "This event has ended"))}</span><a class="link" href="${ROOT}events.html#past-title"><span>${esc(t("ev.archive", "See the archive"))}</span> <span class="i i-arrow" aria-hidden="true"></span></a>`
+      ? `<span class="tag">${esc("This event has ended")}</span><a class="link" href="${ROOT}events.html#past-title"><span>${esc("See the archive")}</span> <span class="i i-arrow" aria-hidden="true"></span></a>`
       : `<details class="cal cal--start">
-          <summary class="btn btn--solid">${ICONS.calendar || ""}<span>${esc(t("events.addTo", "Add to calendar"))}</span></summary>
+          <summary class="btn btn--solid">${ICONS.calendar || ""}<span>${esc("Add to calendar")}</span></summary>
           <div class="cal__menu">
             <a href="${esc(gcalUrl(ev))}" target="_blank" rel="noopener">Google Calendar</a>
-            <button type="button" data-ics="${esc(ev.id)}">${esc(t("events.ics", "Apple / Outlook (.ics)"))}</button>
+            <button type="button" data-ics="${esc(ev.id)}">${esc("Apple / Outlook (.ics)")}</button>
           </div>
         </details>
-        <button class="btn" type="button" data-ev-share><span>${esc(t("ev.share", "Share"))}</span> <span class="i i-out" aria-hidden="true"></span></button>`;
+        <button class="btn" type="button" data-ev-share><span>${esc("Share")}</span> <span class="i i-out" aria-hidden="true"></span></button>`;
 
     const code = "PAMA-" + String(events.indexOf(ev) + 1).padStart(3, "0");
-    const longDay = cap(new Intl.DateTimeFormat(I18N.locale, { timeZone: TZ, weekday: "short", month: "short", day: "numeric" }).format(ev.s));
+    const longDay = cap(new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "short", month: "short", day: "numeric" }).format(ev.s));
     pass.innerHTML = `
       <div class="instrument pass corner-ticks">
-        <div class="instrument__bar"><span>${esc(t("ev.pass", "Boarding pass"))}</span><span>${code}</span></div>
+        <div class="instrument__bar"><span>${esc("Boarding pass")}</span><span>${code}</span></div>
         <div class="pass__grid">
-          <div><p class="pass__k">${esc(t("ev.date", "Date"))}</p><p class="pass__v">${esc(longDay)}</p></div>
-          <div><p class="pass__k">${esc(t("ev.doors", "Starts"))}</p><p class="pass__v">${clock(ev.s)}</p></div>
-          <div><p class="pass__k">${esc(t("ev.ends", "Ends"))}</p><p class="pass__v">${clock(ev.e)}</p></div>
-          <div class="pass__wide"><p class="pass__k">${esc(t("ev.venue", "Venue"))}</p><p class="pass__v">${esc(L)}</p></div>
-          <div><p class="pass__k">${esc(t("ev.type", "Type"))}</p><p class="pass__v">${esc(catLabel)}</p></div>
-          <div><p class="pass__k">${esc(t("ev.admission", "Admission"))}</p><p class="pass__v">${esc(t("ev.free", "Free"))}</p></div>
+          <div><p class="pass__k">${esc("Date")}</p><p class="pass__v">${esc(longDay)}</p></div>
+          <div><p class="pass__k">${esc("Starts")}</p><p class="pass__v">${clock(ev.s)}</p></div>
+          <div><p class="pass__k">${esc("Ends")}</p><p class="pass__v">${clock(ev.e)}</p></div>
+          <div class="pass__wide"><p class="pass__k">${esc("Venue")}</p><p class="pass__v">${esc(L)}</p></div>
+          <div><p class="pass__k">${esc("Type")}</p><p class="pass__v">${esc(catLabel)}</p></div>
+          <div><p class="pass__k">${esc("Admission")}</p><p class="pass__v">${esc("Free")}</p></div>
         </div>
         <div class="pass__tear" aria-hidden="true"></div>
         <div class="pass__stub">
@@ -1011,26 +999,26 @@
     const cdK = $("[data-ev-cd-k]", pass), cdV = $("[data-ev-cd]", pass);
     const tick = () => {
       const now = Date.now();
-      if (now >= ev.e) { cdK.textContent = t("ev.status", "Status"); cdV.textContent = t("ev.ended", "This event has ended"); return; }
-      if (now >= ev.s) { cdK.textContent = t("ev.status", "Status"); cdV.textContent = t("events.live", "Happening now"); return; }
+      if (now >= ev.e) { cdK.textContent = "Status"; cdV.textContent = "This event has ended"; return; }
+      if (now >= ev.s) { cdK.textContent = "Status"; cdV.textContent = "Happening now"; return; }
       const d = ev.s - now, p = (n) => String(n).padStart(2, "0");
-      cdK.textContent = t("ev.tminus", "T-minus");
-      cdV.textContent = `${p(Math.floor(d / 864e5))}${t("ev.dUnit", "d")} ${p(Math.floor(d / 36e5) % 24)}${t("ev.hUnit", "h")} ${p(Math.floor(d / 6e4) % 60)}${t("ev.mUnit", "m")}`;
+      cdK.textContent = "T-minus";
+      cdV.textContent = `${p(Math.floor(d / 864e5))}d ${p(Math.floor(d / 36e5) % 24)}h ${p(Math.floor(d / 6e4) % 60)}m`;
     };
     tick();
     evTimer = setInterval(tick, 30e3);
 
     // Details
-    const bring = (I18N.pick(ev, "bring") || (BRING[ev.cat] || []).map((s, i) => t(`ev.bring.${ev.cat}.${i}`, s)));
-    const extra = I18N.pick(ev, "details");
+    const bring = (ev.bring || BRING[ev.cat] || []);
+    const extra = ev.details;
     $("[data-ev-details]").innerHTML = `
       <dl class="ev-facts">
-        <div><dt>${esc(t("ev.when", "When"))}</dt><dd>${esc(cap(new Intl.DateTimeFormat(I18N.locale, { timeZone: TZ, weekday: "long", month: "long", day: "numeric" }).format(ev.s)))}<br>${timeRange(ev.s, ev.e)}</dd></div>
-        <div><dt>${esc(t("ev.where", "Where"))}</dt><dd>${esc(L)}</dd></div>
-        <div><dt>${esc(t("ev.cost", "Cost"))}</dt><dd>${esc(t("ev.costV", "Free — everyone welcome"))}</dd></div>
+        <div><dt>${esc("When")}</dt><dd>${esc(cap(new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "long", month: "long", day: "numeric" }).format(ev.s)))}<br>${timeRange(ev.s, ev.e)}</dd></div>
+        <div><dt>${esc("Where")}</dt><dd>${esc(L)}</dd></div>
+        <div><dt>${esc("Cost")}</dt><dd>${esc("Free — everyone welcome")}</dd></div>
       </dl>
       <div class="prose mt-m"><p>${esc(D)}</p>${Array.isArray(extra) ? extra.map((p) => `<p>${esc(p)}</p>`).join("") : ""}</div>
-      ${bring.length ? `<h3 class="h4 mt-l">${esc(t("ev.bringTitle", "What to bring"))}</h3><ul class="checklist mt-s">${bring.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>` : ""}`;
+      ${bring.length ? `<h3 class="h4 mt-l">${esc("What to bring")}</h3><ul class="checklist mt-s">${bring.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>` : ""}`;
 
     // Map
     const v = venueOf(ev), mapBox = $("[data-ev-map]"), where = $("[data-ev-where]");
@@ -1038,18 +1026,18 @@
     else {
       where.hidden = false;
       const d = 0.0045, bbox = [v.lon - d * 1.6, v.lat - d, v.lon + d * 1.6, v.lat + d].map((n) => n.toFixed(5)).join(",");
-      const note = I18N.pick(v, "note");
+      const note = v.note;
       mapBox.innerHTML = `
         <div class="ev-map">
-          <div class="ev-map__frame"><iframe title="${esc(t("ev.mapTitle", "Map of {place}").replace("{place}", I18N.pick(v, "name")))}" src="https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&amp;layer=mapnik&amp;marker=${v.lat},${v.lon}" loading="lazy" referrerpolicy="no-referrer"></iframe></div>
+          <div class="ev-map__frame"><iframe title="${esc("Map of {place}".replace("{place}", v.name))}" src="https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&amp;layer=mapnik&amp;marker=${v.lat},${v.lon}" loading="lazy" referrerpolicy="no-referrer"></iframe></div>
           <div class="ev-map__info">
-            <p class="pass__k">${esc(t("ev.address", "Address"))}</p>
-            <p class="ev-map__name">${esc(I18N.pick(v, "name"))}</p>
+            <p class="pass__k">${esc("Address")}</p>
+            <p class="ev-map__name">${esc(v.name)}</p>
             <p class="ev-map__addr">${esc(v.address)}</p>
             ${note ? `<p class="ev-map__note">${esc(note)}</p>` : ""}
             <div class="btn-row mt-s">
-              <a class="link" href="https://www.google.com/maps/dir/?api=1&amp;destination=${v.lat},${v.lon}" target="_blank" rel="noopener"><span>${esc(t("ev.directions", "Directions"))}</span> <span class="i i-out" aria-hidden="true"></span></a>
-              <a class="link" href="https://www.openstreetmap.org/?mlat=${v.lat}&amp;mlon=${v.lon}#map=17/${v.lat}/${v.lon}" target="_blank" rel="noopener"><span>${esc(t("ev.bigMap", "Larger map"))}</span> <span class="i i-out" aria-hidden="true"></span></a>
+              <a class="link" href="https://www.google.com/maps/dir/?api=1&amp;destination=${v.lat},${v.lon}" target="_blank" rel="noopener"><span>${esc("Directions")}</span> <span class="i i-out" aria-hidden="true"></span></a>
+              <a class="link" href="https://www.openstreetmap.org/?mlat=${v.lat}&amp;mlon=${v.lon}#map=17/${v.lat}/${v.lon}" target="_blank" rel="noopener"><span>${esc("Larger map")}</span> <span class="i i-out" aria-hidden="true"></span></a>
             </div>
           </div>
         </div>`;
@@ -1080,7 +1068,7 @@
       if (!b) return;
       const data = { title: document.title, url: location.href };
       if (navigator.share) { try { await navigator.share(data); } catch (err) { /* dismissed */ } return; }
-      try { await navigator.clipboard.writeText(location.href); toast(t("ev.copied", "Link copied")); }
+      try { await navigator.clipboard.writeText(location.href); toast("Link copied"); }
       catch (err) { toast(location.href); }
     });
   }
@@ -1104,9 +1092,9 @@
       rerender(el, posts.slice(0, n).map((p) => `
         <a class="post" href="${ROOT}news.html#${esc(p.id)}">
           <div class="post__media">${(ART[p.art] || ART.orbit)()}</div>
-          <div class="post__meta"><time datetime="${p.date}">${longDate(p.date)}</time><span class="accent">${esc(I18N.pick(p, "tag"))}</span></div>
-          <h3>${esc(I18N.pick(p, "title"))}</h3>
-          <p>${esc(I18N.pick(p, "excerpt"))}</p>
+          <div class="post__meta"><time datetime="${p.date}">${longDate(p.date)}</time><span class="accent">${esc(p.tag)}</span></div>
+          <h3>${esc(p.title)}</h3>
+          <p>${esc(p.excerpt)}</p>
         </a>`).join(""));
       stripMotion(el);
     });
@@ -1117,12 +1105,12 @@
       list.innerHTML = posts.map((p) => `
         <details class="article" id="${esc(p.id)}"${openIds.includes(p.id) ? " open" : ""}>
           <summary>
-            <span class="article__date"><time datetime="${p.date}">${longDate(p.date)}</time><br><span class="accent">${esc(I18N.pick(p, "tag"))}</span></span>
-            <h3 class="article__title">${esc(I18N.pick(p, "title"))}</h3>
-            <span class="article__excerpt">${esc(I18N.pick(p, "excerpt"))}</span>
+            <span class="article__date"><time datetime="${p.date}">${longDate(p.date)}</time><br><span class="accent">${esc(p.tag)}</span></span>
+            <h3 class="article__title">${esc(p.title)}</h3>
+            <span class="article__excerpt">${esc(p.excerpt)}</span>
             <span class="article__toggle" aria-hidden="true"><span class="i i-plus"></span></span>
           </summary>
-          <div class="article__body"><div>${(I18N.pick(p, "body") || []).map((x) => `<p>${esc(x)}</p>`).join("")}</div></div>
+          <div class="article__body"><div>${(p.body || []).map((x) => `<p>${esc(x)}</p>`).join("")}</div></div>
         </details>`).join("");
     }
   }
@@ -1152,11 +1140,11 @@
     if (!grid) return;
     rerender(grid, items.map((g, i) => `
       <figure class="frame" style="--d:${(i % 3) * 90}ms">
-        <button class="frame__btn" type="button" data-lb-open="${i}" aria-label="${esc(t("log.open", "Open photo: {t}").replace("{t}", I18N.pick(g, "title")))}">
-          <img src="${LOG_DIR()}${esc(g.src)}-800.jpg" width="${+g.w || 800}" height="${+g.h || 533}" alt="${esc(I18N.pick(g, "caption"))}" loading="${i < 3 ? "eager" : "lazy"}" decoding="async">
+        <button class="frame__btn" type="button" data-lb-open="${i}" aria-label="${esc("Open photo: {t}".replace("{t}", g.title))}">
+          <img src="${LOG_DIR()}${esc(g.src)}-800.jpg" width="${+g.w || 800}" height="${+g.h || 533}" alt="${esc(g.caption)}" loading="${i < 3 ? "eager" : "lazy"}" decoding="async">
           <span class="frame__zoom" aria-hidden="true"></span>
         </button>
-        <figcaption><span class="frame__meta">${longDate(g.date)} · ${esc(I18N.pick(g, "place"))}</span><b>${esc(I18N.pick(g, "title"))}</b></figcaption>
+        <figcaption><span class="frame__meta">${longDate(g.date)} · ${esc(g.place)}</span><b>${esc(g.title)}</b></figcaption>
       </figure>`).join(""));
     $$(".frame", grid).forEach((f) => f.classList.add("reveal"));
   }
@@ -1173,11 +1161,11 @@
       dlg.classList.add("is-loading");
       img.onload = () => dlg.classList.remove("is-loading");
       img.src = src(g);
-      img.alt = I18N.pick(g, "caption");
+      img.alt = g.caption;
       $("[data-lb-count]", dlg).textContent = `${String(idx + 1).padStart(2, "0")} / ${String(items.length).padStart(2, "0")}`;
-      $("[data-lb-title]", dlg).textContent = I18N.pick(g, "title");
-      $("[data-lb-text]", dlg).textContent = I18N.pick(g, "caption");
-      $("[data-lb-meta]", dlg).textContent = `${longDate(g.date)} · ${I18N.pick(g, "place")} · ${t("log.photo", "Photo")}: ${g.credit}`;
+      $("[data-lb-title]", dlg).textContent = g.title;
+      $("[data-lb-text]", dlg).textContent = g.caption;
+      $("[data-lb-meta]", dlg).textContent = `${longDate(g.date)} · ${g.place} · Photo: ${g.credit}`;
       [idx + 1, idx - 1].forEach((j) => { new Image().src = src(items[(j + items.length) % items.length]); }); // preload neighbours
     };
     document.addEventListener("click", (e) => {
@@ -1203,7 +1191,6 @@
       const dx = e.changedTouches[0].clientX - x0; x0 = null;
       if (Math.abs(dx) > 50) show(idx + (dx < 0 ? 1 : -1));
     }, { passive: true });
-    document.addEventListener("pama:lang", () => { if (dlg.open) show(idx); });
   }
 
   /* Logbook hero: a camera iris opens on the night sky, star trails build up
@@ -1272,11 +1259,10 @@
       const isOpen = k > 0.5;
       if (status && isOpen !== open) {
         open = isOpen;
-        status.textContent = isOpen ? t("log.rec", "Shutter open") : t("log.closed", "Shutter closed");
+        status.textContent = isOpen ? "Shutter open" : "Shutter closed";
         status.classList.toggle("is-idle", !isOpen);
       }
     };
-    document.addEventListener("pama:lang", () => { open = null; });
     if (reduceMotion) { frame(OPEN + EXPO * 0.6); return; }
     let raf = 0, t0 = performance.now(), visible = true;
     const loop = (now) => { if (motionOff()) { raf = 0; return; } frame((now - t0) / 1000); raf = requestAnimationFrame(loop); };
@@ -1389,15 +1375,15 @@
     const n = list.length, w = weekNumber(), at = (k) => list[((k % n) + n) % n];
     const cur = at(w), prev = at(w - 1);
     const fill = (sel, v) => { const el = $(sel, box); if (el) el.textContent = v; };
-    fill("[data-pow-title]", I18N.pick(cur, "title"));
-    fill("[data-pow-q]", I18N.pick(cur, "q"));
-    fill("[data-pow-hint]", I18N.pick(cur, "hint"));
-    fill("[data-pow-last-title]", I18N.pick(prev, "title"));
-    fill("[data-pow-last]", I18N.pick(prev, "answer"));
+    fill("[data-pow-title]", cur.title);
+    fill("[data-pow-q]", cur.q);
+    fill("[data-pow-hint]", cur.hint);
+    fill("[data-pow-last-title]", prev.title);
+    fill("[data-pow-last]", prev.answer);
     const fig = $("[data-pow-fig]", box), draw = POW_FIGS[cur.fig];
     if (fig) { fig.hidden = !draw; if (draw && fig.dataset.fig !== cur.fig) { fig.innerHTML = `<svg class="pow-fig" viewBox="0 0 160 160">${draw()}</svg>`; fig.dataset.fig = cur.fig; } }
     // № 001 is the week of 7 September 2026, PAMA's first term
-    fill("[data-pow-no]", t("pow.no", "Problem № {n}").replace("{n}", String(Math.max(1, w - 2956)).padStart(3, "0")));
+    fill("[data-pow-no]", "Problem № {n}".replace("{n}", String(Math.max(1, w - 2956)).padStart(3, "0")));
   }
 
   function weekNumber() {
@@ -1419,7 +1405,7 @@
     let idx = 0;
     nav.innerHTML = list.map((_, k) => `<button class="equation__dot" type="button" data-eq="${k}"></button>`).join("");
     const dots = $$(".equation__dot", nav);
-    const label = () => dots.forEach((d, k) => d.setAttribute("aria-label", t("eq.show", "Show equation {n}").replace("{n}", k + 1)));
+    const label = () => dots.forEach((d, k) => d.setAttribute("aria-label", "Show equation {n}".replace("{n}", k + 1)));
 
     const annotate = () => {
       const math = $(".equation__math", f), notes = $(".eq-notes", f);
@@ -1427,7 +1413,7 @@
       notes.innerHTML = "";
       if (!window.matchMedia("(min-width: 720px)").matches) return;
       const fr = f.getBoundingClientRect(), mr = math.getBoundingClientRect();
-      const terms = I18N.pick(list[idx], "terms") || [];
+      const terms = list[idx].terms || [];
       const GAP = 10, TIER = 24, mid = mr.left + mr.width / 2 - fr.left;
       // Measure every label first
       const items = $$("[data-t]", math).map((el) => {
@@ -1478,10 +1464,10 @@
       });
     };
     const paint = () => {
-      const eq = list[idx], terms = I18N.pick(eq, "terms") || [];
+      const eq = list[idx], terms = eq.terms || [];
       f.innerHTML = `<span class="equation__math">${eq.html}</span><span class="eq-notes" aria-hidden="true"></span>`;
-      c.textContent = I18N.pick(eq, "caption");
-      if (meta) meta.innerHTML = eq.field ? `<span>${esc(I18N.pick(eq, "field"))}</span><span>${eq.year}</span>` : "";
+      c.textContent = eq.caption;
+      if (meta) meta.innerHTML = eq.field ? `<span>${esc(eq.field)}</span><span>${eq.year}</span>` : "";
       if (legend) {
         const tmp = document.createElement("div"); tmp.innerHTML = eq.html;
         legend.innerHTML = $$("[data-t]", tmp).map((el) => terms[+el.dataset.t] ? `<li><span class="eq-legend__sym">${el.innerHTML}</span>${esc(terms[+el.dataset.t])}</li>` : "").join("");
@@ -1521,7 +1507,6 @@
     if (document.fonts) document.fonts.ready.then(annotate);
     let rw = innerWidth, rt;
     window.addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => { if (innerWidth !== rw) { rw = innerWidth; annotate(); } }, 150); });
-    document.addEventListener("pama:lang", () => { label(); paint(); });
   }
 
   /* ------------------------------------------------------------------
@@ -1536,21 +1521,21 @@
     const age = ((((Date.now() - ref) / 864e5) % syn) + syn) % syn;
     const frac = (1 - Math.cos((2 * Math.PI * age) / syn)) / 2;
     const i = Math.floor((age / syn) * 8 + 0.5) % 8;
-    const name = t("sky.phase" + i, PHASES[i]);
+    const name = PHASES[i];
     const toNew = Math.max(1, Math.round(syn - age));
     const waxing = age < syn / 2, r = 28, k = Math.cos((2 * Math.PI * age) / syn);
     const d = `M32 4 A${r} ${r} 0 0 ${waxing ? 1 : 0} 32 60 A${(Math.abs(k) * r).toFixed(2)} ${r} 0 0 ${(waxing ? k > 0 : k < 0) ? 0 : 1} 32 4Z`;
     const note = frac < 0.35
-      ? t("sky.dark", "Dark skies — a good night for faint galaxies and nebulae.")
-      : t("sky.bright", "Bright moonlight. Next new moon in about {n} days.").replace("{n}", toNew);
+      ? "Dark skies — a good night for faint galaxies and nebulae."
+      : "Bright moonlight. Next new moon in about {n} days.".replace("{n}", toNew);
     const markup = `
       <svg class="sky__moon" viewBox="0 0 64 64" aria-hidden="true">
         <circle cx="32" cy="32" r="28" fill="#0d1120" stroke="rgba(255,255,255,.15)"/>
         <path d="${d}" fill="#e6ecf7"/>
       </svg>
       <div>
-        <p class="sky__label">${esc(t("sky.label", "Tonight over Lethbridge"))}</p>
-        <p class="sky__value">${esc(name)} · ${F.pct.format(Math.round(frac * 100) / 100)} ${esc(t("sky.lit", "illuminated"))}</p>
+        <p class="sky__label">${esc("Tonight over Lethbridge")}</p>
+        <p class="sky__value">${esc(name)} · ${F.pct.format(Math.round(frac * 100) / 100)} ${esc("illuminated")}</p>
         <p class="sky__note">${esc(note)}</p>
       </div>`;
     els.forEach((el) => { el.innerHTML = markup; });
@@ -1653,7 +1638,7 @@
     const track = list.parentElement;
     $$(".ticker__list[data-clone]", track).forEach((n) => n.remove());
     const clone = list.cloneNode(true);
-    clone.removeAttribute("data-i18n"); clone.removeAttribute("data-ticker");
+    clone.removeAttribute("data-ticker");
     clone.setAttribute("data-clone", "");
     track.appendChild(clone);
   }
@@ -1667,8 +1652,8 @@
     if (!ev) { box.hidden = true; return; }
     box.hidden = false;
     box.href = eventUrl(ev);
-    $("[data-cd-title]", box).textContent = I18N.pick(ev, "title");
-    $("[data-cd-when]", box).textContent = `${dayMonth(ev.s)} · ${clock(ev.s)} · ${I18N.pick(ev, "location")}`;
+    $("[data-cd-title]", box).textContent = ev.title;
+    $("[data-cd-when]", box).textContent = `${dayMonth(ev.s)} · ${clock(ev.s)} · ${ev.location}`;
     const out = { d: $('[data-cd="d"]', box), h: $('[data-cd="h"]', box), m: $('[data-cd="m"]', box), s: $('[data-cd="s"]', box) };
     const label = $("[data-cd-label]", box);
     const pad = (n) => String(n).padStart(2, "0");
@@ -1676,7 +1661,7 @@
       const now = Date.now();
       if (now >= ev.e) { clearInterval(cdTimer); initData(); renderEvents(); countdown(); return; }
       const live = now >= ev.s && now < ev.e;
-      label.textContent = live ? t("events.live", "Happening now") : t("events.next", "Next up");
+      label.textContent = live ? "Happening now" : "Next up";
       const diff = Math.max(0, ev.s - now);
       out.d.textContent = pad(Math.floor(diff / 864e5));
       out.h.textContent = pad(Math.floor(diff / 36e5) % 24);
@@ -1697,7 +1682,7 @@
     const people = $$("[data-person]");
     const NS = "http://www.w3.org/2000/svg";
     const mk = (tag, attrs, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
-    const top = t("team.patch.top", "Physics · Astronomy · Mathematics"), bottom = t("team.patch.bottom", "University of Lethbridge");
+    const top = "Physics · Astronomy · Mathematics", bottom = "University of Lethbridge";
     svg.innerHTML = `
       <defs>
         <radialGradient id="pface" cx="50%" cy="42%" r="60%"><stop offset="0" style="stop-color:var(--accent)" stop-opacity=".16"/><stop offset=".55" stop-color="#0b0e1a"/><stop offset="1" stop-color="#070a13"/></radialGradient>
@@ -1766,7 +1751,6 @@
       count.textContent = String(posts.length).padStart(2, "0");
     };
     readout();
-    document.addEventListener("pama:lang", readout);
     let w, h, raf = 0, visible = true, lastDraw = 0;
     const size = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1847,7 +1831,7 @@
       $$("[data-motion-toggle]").forEach((b) => {
         b.setAttribute("aria-checked", String(!off));
         const s = $("[data-motion-state]", b);
-        if (s) s.textContent = off ? t("footer.motionOff", "Off") : t("footer.motionOn", "On");
+        if (s) s.textContent = off ? "Off" : "On";
       });
       $$("svg").forEach((s) => { try { if (off) s.pauseAnimations(); else s.unpauseAnimations(); } catch (e) { /* not an SMIL svg */ } });
     };
@@ -1862,24 +1846,16 @@
       document.dispatchEvent(new CustomEvent("pama:motion"));
     });
     apply();
-    document.addEventListener("pama:lang", apply);
-  }
-
-  function relang() {
-    document.addEventListener("pama:lang", () => {
-      [buildFormats, renderEvents, announceCount, renderNews, moon, ticker, countdown, patch, eventPage, problem, gallery].forEach(safe);
-      reveal();
-    });
   }
 
   /* ------------------------------------------------------------------ */
   function safe(fn) { try { fn(); } catch (err) { console.error("[PAMA] " + (fn.name || "init") + " failed:", err); } }
   document.addEventListener("DOMContentLoaded", () => {
     [
-      () => I18N.apply(), initData, buildFormats, starfield, header, menu, art,
+      initData, buildFormats, starfield, header, menu, art,
       renderEvents, eventsUI, renderNews, newsDeepLink, equations, moon, lst,
       landing, ticker, countdown, patch, scope, eventPage, share, problem, gallery, lightbox, aperture, heroDepth,
-      reveal, spotlight, transitions, toTop, motionSwitch, relang,
+      reveal, spotlight, transitions, toTop, motionSwitch,
     ].forEach(safe);
     html.classList.add("js-ready");
   });

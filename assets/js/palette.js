@@ -7,9 +7,6 @@
   "use strict";
 
   const P = window.PAMA || {}, ROOT = P.ROOT || "", NAV = P.NAV || [], LINKS = P.LINKS || {};
-  const I = window.PAMA_I18N || { lang: "en", t: (k, f) => f, pick: (o, f) => o[f] };
-  const t = (k, f) => I.t(k, f);
-  const pick = (o, f) => (I.pick ? I.pick(o, f) : o[f]);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const fold = (s) => String(s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -23,29 +20,27 @@
   }
   function dateLabel(ymd) {
     const d = new Date(ymd + "T12:00:00Z");
-    return new Intl.DateTimeFormat(I.locale || "en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(d);
+    return new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(d);
   }
   function build() {
     const D = window.PAMA_DATA || {}, out = [];
-    NAV.forEach((n, i) => out.push({ group: "pages", title: t("nav." + n.id, n.label), sub: String(i + 1).padStart(2, "0"), href: ROOT + n.href, words: n.id }));
+    NAV.forEach((n, i) => out.push({ group: "pages", title: n.label, sub: String(i + 1).padStart(2, "0"), href: ROOT + n.href, words: n.id }));
     // Sections of the page you're on
     document.querySelectorAll("main h2[id]").forEach((h) => {
       const txt = h.textContent.trim();
-      if (txt) out.push({ group: "here", title: txt, sub: t("pal.onPage", "On this page"), href: "#" + h.id });
+      if (txt) out.push({ group: "here", title: txt, sub: "On this page", href: "#" + h.id });
     });
     const today = todayYMD();
     (D.events || []).filter((e) => e && e.id && String(e.end || e.start) >= today).sort((a, b) => a.start.localeCompare(b.start)).forEach((e) => {
-      out.push({ group: "events", title: pick(e, "title"), sub: `${dateLabel(e.start.slice(0, 10))} · ${pick(e, "location")}`, href: `${ROOT}event.html?id=${encodeURIComponent(e.id)}`, words: `${e.cat} ${pick(e, "desc")}` });
+      out.push({ group: "events", title: e.title, sub: `${dateLabel(e.start.slice(0, 10))} · ${e.location}`, href: `${ROOT}event.html?id=${encodeURIComponent(e.id)}`, words: `${e.cat} ${e.desc}` });
     });
-    (D.news || []).forEach((n) => out.push({ group: "news", title: pick(n, "title"), sub: `${dateLabel(n.date)} · ${pick(n, "tag")}`, href: `${ROOT}news.html#${encodeURIComponent(n.id)}`, words: pick(n, "excerpt") }));
+    (D.news || []).forEach((n) => out.push({ group: "news", title: n.title, sub: `${dateLabel(n.date)} · ${n.tag}`, href: `${ROOT}news.html#${encodeURIComponent(n.id)}`, words: n.excerpt }));
     (resources || []).forEach((r) => out.push({ group: "resources", title: r.name, sub: r.desc, href: r.href, ext: true }));
-    const fr = I.lang === "fr";
     out.push(
-      { group: "actions", title: t("pal.tonight", "Tonight's sky over Lethbridge"), sub: t("pal.tonightSub", "Darkness, moon, planets, ISS"), href: ROOT + "events.html#tonight-title", words: "moon planets iss sky tonight lune planetes" },
-      { group: "actions", title: t("pal.problem", "Problem of the week"), sub: t("pal.problemSub", "This week's puzzle"), href: ROOT + "index.html#pow-title", words: "puzzle probleme" },
-      { group: "actions", title: fr ? "Switch to English" : "Passer en français", sub: fr ? "Language" : "Langue", run: () => I.set && I.set(fr ? "en" : "fr"), words: "language langue english francais french" },
-      { group: "actions", title: t("pal.copy", "Copy a link to this page"), sub: t("pal.share", "Share"), run: copyLink, words: "share partager url" },
-      { group: "actions", title: t("footer.form", "Membership form"), sub: "Google Forms", href: LINKS.joinForm, ext: true, words: "join member adherer" },
+      { group: "actions", title: "Tonight's sky over Lethbridge", sub: "Darkness, moon, planets, ISS", href: ROOT + "events.html#tonight-title", words: "moon planets iss sky tonight" },
+      { group: "actions", title: "Problem of the week", sub: "This week's puzzle", href: ROOT + "index.html#pow-title", words: "puzzle" },
+      { group: "actions", title: "Copy a link to this page", sub: "Share", run: copyLink, words: "share url" },
+      { group: "actions", title: "Membership form", sub: "Google Forms", href: LINKS.joinForm, ext: true, words: "join member" },
       { group: "actions", title: "Instagram", sub: "@uleth.pama", href: LINKS.instagram, ext: true, words: "social" },
     );
     items = out.filter((x) => x.href || x.run);
@@ -76,7 +71,7 @@
     return i === q.length ? 20 : 0;
   }
   const GROUPS = ["pages", "here", "events", "news", "resources", "actions"];
-  const GROUP_LABEL = { pages: ["pal.g.pages", "Pages"], here: ["pal.g.here", "On this page"], events: ["pal.g.events", "Upcoming events"], news: ["pal.g.news", "News"], resources: ["pal.g.resources", "Resources"], actions: ["pal.g.actions", "Quick actions"] };
+  const GROUP_LABEL = { pages: "Pages", here: "On this page", events: "Upcoming events", news: "News", resources: "Resources", actions: "Quick actions" };
 
   function render() {
     const q = fold(input.value.trim());
@@ -94,13 +89,13 @@
     order.forEach((g) => res.filter((x) => x.group === g).slice(0, q ? 6 : 8).forEach((x) => shown.push(x)));
     active = 0;
     if (!shown.length) {
-      list.innerHTML = `<li class="pal__empty" role="presentation">${esc(t("pal.none", "Nothing matches “{q}”").replace("{q}", input.value.trim()))}</li>`;
+      list.innerHTML = `<li class="pal__empty" role="presentation">${esc("Nothing matches “{q}”".replace("{q}", input.value.trim()))}</li>`;
       input.setAttribute("aria-activedescendant", "");
       return;
     }
     let html = "", last = "";
     shown.forEach((x, i) => {
-      if (x.group !== last) { last = x.group; html += `<li class="pal__group" role="presentation">${esc(t(...GROUP_LABEL[x.group]))}</li>`; }
+      if (x.group !== last) { last = x.group; html += `<li class="pal__group" role="presentation">${esc(GROUP_LABEL[x.group])}</li>`; }
       html += `<li class="pal__item" role="option" id="pal-${i}" data-i="${i}" aria-selected="${i === 0}">
         <span class="pal__title">${esc(x.title)}</span>${x.sub ? `<span class="pal__sub">${esc(x.sub)}</span>` : ""}
         <span class="pal__go" aria-hidden="true">${x.ext ? "↗" : "↵"}</span></li>`;
@@ -131,14 +126,14 @@
   }
   function copyLink() {
     const say = (m) => window.PAMA && window.PAMA.toast && window.PAMA.toast(m);
-    if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(() => say(t("ev.copied", "Link copied")), () => say(location.href));
+    if (navigator.clipboard) navigator.clipboard.writeText(location.href).then(() => say("Link copied"), () => say(location.href));
   }
 
   /* ---- Dialog ---- */
   function create() {
     dlg = document.createElement("dialog");
     dlg.className = "pal";
-    dlg.setAttribute("aria-label", t("pal.label", "Search the site"));
+    dlg.setAttribute("aria-label", "Search the site");
     dlg.innerHTML = `
       <div class="pal__box">
         <div class="pal__field">
@@ -147,7 +142,7 @@
           <kbd class="pal__kbd">Esc</kbd>
         </div>
         <ul class="pal__list" id="pal-list" role="listbox"></ul>
-        <p class="pal__foot" aria-hidden="true"><span><kbd>↑</kbd><kbd>↓</kbd> ${esc(t("pal.nav", "to move"))}</span><span><kbd>↵</kbd> ${esc(t("pal.openKey", "to open"))}</span><span><kbd>Esc</kbd> ${esc(t("pal.closeKey", "to close"))}</span></p>
+        <p class="pal__foot" aria-hidden="true"><span><kbd>↑</kbd><kbd>↓</kbd> ${esc("to move")}</span><span><kbd>↵</kbd> ${esc("to open")}</span><span><kbd>Esc</kbd> ${esc("to close")}</span></p>
       </div>`;
     document.body.appendChild(dlg);
     input = dlg.querySelector(".pal__input");
@@ -167,7 +162,7 @@
     if (!dlg) create();
     if (dlg.open) return;
     opener = document.activeElement;
-    input.placeholder = t("pal.placeholder", "Search pages, events, resources…");
+    input.placeholder = "Search pages, events, resources…";
     build(); input.value = ""; render();
     dlg.showModal();
     document.documentElement.classList.add("pal-open");

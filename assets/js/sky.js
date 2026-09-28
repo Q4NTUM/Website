@@ -13,8 +13,6 @@
   const root = document.querySelector("[data-tonight]");
   if (!root) return;
 
-  const I = window.PAMA_I18N || { lang: "en", locale: "en-US", t: (k, f) => f };
-  const t = (k, f) => I.t(k, f);
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const TZ = "America/Edmonton", LAT = 49.68, LON = -112.86;
   const RAD = Math.PI / 180, DEG = 180 / Math.PI;
@@ -110,19 +108,16 @@
   }
 
   /* ---- Formatting ---- */
-  const fr = () => I.lang === "fr";
   const NBSP = " ";
   function clock(d) {
-    const p = parts(d);
-    if (fr()) return `${p.hour}${NBSP}h${NBSP}${String(p.minute).padStart(2, "0")}`;
     return new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric", minute: "2-digit" }).format(d).replace(" ", NBSP);
   }
-  const hourLabel = (d) => { const p = parts(d); return fr() ? `${p.hour}${NBSP}h` : new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric" }).format(d).replace(" ", "").toLowerCase(); };
-  const weekday = (d) => new Intl.DateTimeFormat(I.locale, { timeZone: TZ, weekday: "short" }).format(d).replace(/\.$/, "");
-  const COMPASS = { en: ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"], fr: ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSO", "SO", "OSO", "O", "ONO", "NO", "NNO"] };
-  const compass = (az) => (fr() ? COMPASS.fr : COMPASS.en)[Math.round(az / 22.5) % 16];
-  const PNAME = { venus: ["Venus", "Vénus"], jupiter: ["Jupiter", "Jupiter"], mars: ["Mars", "Mars"], saturn: ["Saturn", "Saturne"], mercury: ["Mercury", "Mercure"] };
-  const pname = (id) => PNAME[id][fr() ? 1 : 0];
+  const hourLabel = (d) => new Intl.DateTimeFormat("en-US", { timeZone: TZ, hour: "numeric" }).format(d).replace(" ", "").toLowerCase();
+  const weekday = (d) => new Intl.DateTimeFormat("en-US", { timeZone: TZ, weekday: "short" }).format(d);
+  const COMPASS = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+  const compass = (az) => COMPASS[Math.round(az / 22.5) % 16];
+  const PNAME = { venus: "Venus", jupiter: "Jupiter", mars: "Mars", saturn: "Saturn", mercury: "Mercury" };
+  const pname = (id) => PNAME[id];
   const PHASES = ["New moon", "Waxing crescent", "First quarter", "Waxing gibbous", "Full moon", "Waning gibbous", "Last quarter", "Waning crescent"];
 
   /* ---- The night ---- */
@@ -254,18 +249,18 @@
 
     // Moon rise/set line
     const moonUpAll = N.moonAlt.every((a) => a > 0), moonDownAll = N.moonAlt.every((a) => a <= 0);
-    const moonSub = moonUpAll ? t("tn.moonUp", "Up all night") : moonDownAll ? t("tn.moonDown", "Below the horizon all night")
-      : [N.moonrise && t("tn.rises", "Rises {t}").replace("{t}", clock(N.moonrise)), N.moonset && t("tn.sets", "Sets {t}").replace("{t}", clock(N.moonset))].filter(Boolean).join(" · ");
+    const moonSub = moonUpAll ? "Up all night" : moonDownAll ? "Below the horizon all night"
+      : [N.moonrise && "Rises {t}".replace("{t}", clock(N.moonrise)), N.moonset && "Sets {t}".replace("{t}", clock(N.moonset))].filter(Boolean).join(" · ");
 
     // ISS cell
     let issMain, issSub;
-    if (issState.status === "loading") { issMain = t("tn.calc", "Calculating…"); issSub = t("tn.issSub", "Next visible pass"); }
+    if (issState.status === "loading") { issMain = "Calculating…"; issSub = "Next visible pass"; }
     else if (issState.status === "ok" && issState.pass) {
       const p = issState.pass, mins = Math.max(1, Math.round((p.end - p.start) / 6e4));
       issMain = `${weekday(p.start)} ${clock(p.start)}`;
-      issSub = t("tn.issFmt", "{m} min · max {e}° · {a} → {b}").replace("{m}", mins).replace("{e}", Math.round(p.max)).replace("{a}", compass(p.azStart)).replace("{b}", compass(p.azEnd));
-    } else if (issState.status === "ok") { issMain = t("tn.issNone", "No visible pass"); issSub = t("tn.issNoneSub", "in the next three days"); }
-    else { issMain = `<a class="text-link" href="https://www.heavens-above.com/PassSummary.aspx?satid=25544&lat=${LAT}&lng=${LON}&loc=Lethbridge&alt=900&tz=MST" target="_blank" rel="noopener">Heavens-Above ↗</a>`; issSub = t("tn.issOff", "Live pass data unavailable"); }
+      issSub = "{m} min · max {e}° · {a} → {b}".replace("{m}", mins).replace("{e}", Math.round(p.max)).replace("{a}", compass(p.azStart)).replace("{b}", compass(p.azEnd));
+    } else if (issState.status === "ok") { issMain = "No visible pass"; issSub = "in the next three days"; }
+    else { issMain = `<a class="text-link" href="https://www.heavens-above.com/PassSummary.aspx?satid=25544&lat=${LAT}&lng=${LON}&loc=Lethbridge&alt=900&tz=MST" target="_blank" rel="noopener">Heavens-Above ↗</a>`; issSub = "Live pass data unavailable"; }
 
     // Hour ticks every two hours
     const ticks = [];
@@ -278,59 +273,59 @@
 
     const planetRows = visible.map((p) => `
         <div class="alm-row">
-          <div class="alm-row__label"><b>${esc(pname(p.id))}</b><span>${esc(t("tn.best", "Best {t} · {e}° {d}").replace("{t}", clock(p.best.time)).replace("{e}", Math.round(p.best.alt)).replace("{d}", compass(p.best.az)))}</span></div>
+          <div class="alm-row__label"><b>${esc(pname(p.id))}</b><span>${esc("Best {t} · {e}° {d}".replace("{t}", clock(p.best.time)).replace("{e}", Math.round(p.best.alt)).replace("{d}", compass(p.best.az)))}</span></div>
           <div class="alm-row__track alm-row__track--planet">${bars(p.alts)}</div>
         </div>`).join("");
 
-    const summary = t("tn.summary", "Sunset {a}. {b} Moon {c}% lit. Planets after dark: {d}.")
+    const summary = "Sunset {a}. {b} Moon {c}% lit. Planets after dark: {d}."
       .replace("{a}", N.sunset ? clock(N.sunset) : "—")
-      .replace("{b}", N.dusk ? t("tn.darkAt", "Fully dark from {t}.").replace("{t}", clock(N.dusk)) : t("tn.noDark", "No full darkness tonight."))
+      .replace("{b}", N.dusk ? "Fully dark from {t}.".replace("{t}", clock(N.dusk)) : "No full darkness tonight.")
       .replace("{c}", Math.round(m.illum * 100))
-      .replace("{d}", visible.length ? visible.map((p) => pname(p.id)).join(", ") : t("tn.none", "none"));
+      .replace("{d}", visible.length ? visible.map((p) => pname(p.id)).join(", ") : "none");
 
     root.innerHTML = `
-      <div class="instrument__bar"><span><span class="alm-live" aria-hidden="true"></span>${esc(t("tn.bar", "Live · Lethbridge 49.68° N"))}</span><span data-alm-now>${esc(clock(now))}</span></div>
+      <div class="instrument__bar"><span><span class="alm-live" aria-hidden="true"></span>${esc("Live · Lethbridge 49.68° N")}</span><span data-alm-now>${esc(clock(now))}</span></div>
       <p class="sr-only">${esc(summary)}</p>
       <div class="alm-stats">
         <div class="alm-stat">
-          <p class="alm-stat__k">${esc(t("tn.sunset", "Sunset"))}</p>
+          <p class="alm-stat__k">${esc("Sunset")}</p>
           <p class="alm-stat__v">${N.sunset ? esc(clock(N.sunset)) : "—"}</p>
-          <p class="alm-stat__s">${esc(N.dusk ? t("tn.darkAt", "Fully dark from {t}.").replace("{t}", clock(N.dusk)).replace(/\.$/, "") : t("tn.noDark", "No full darkness tonight.").replace(/\.$/, ""))}</p>
+          <p class="alm-stat__s">${esc(N.dusk ? "Fully dark from {t}.".replace("{t}", clock(N.dusk)).replace(/\.$/, "") : "No full darkness tonight.".replace(/\.$/, ""))}</p>
         </div>
         <div class="alm-stat alm-stat--moon">
           ${moonIcon(m.age)}
           <div>
-            <p class="alm-stat__k">${esc(t("tn.moon", "Moon"))}</p>
-            <p class="alm-stat__v">${esc(t("sky.phase" + phaseIdx, PHASES[phaseIdx]))} <small>${Math.round(m.illum * 100)}%</small></p>
+            <p class="alm-stat__k">${esc("Moon")}</p>
+            <p class="alm-stat__v">${esc(PHASES[phaseIdx])} <small>${Math.round(m.illum * 100)}%</small></p>
             <p class="alm-stat__s">${esc(moonSub)}</p>
           </div>
         </div>
         <div class="alm-stat">
-          <p class="alm-stat__k">${esc(t("tn.planets", "Planets"))}</p>
-          <p class="alm-stat__v">${visible.length ? esc(visible.map((p) => pname(p.id)).join(", ")) : esc(t("tn.nonePl", "None tonight"))}</p>
-          <p class="alm-stat__s">${esc(hidden.length ? t("tn.hidden", "Not up after dark: {p}").replace("{p}", hidden.map((p) => pname(p.id)).join(", ")) : t("tn.allUp", "All five naked-eye planets are up"))}</p>
+          <p class="alm-stat__k">${esc("Planets")}</p>
+          <p class="alm-stat__v">${visible.length ? esc(visible.map((p) => pname(p.id)).join(", ")) : esc("None tonight")}</p>
+          <p class="alm-stat__s">${esc(hidden.length ? "Not up after dark: {p}".replace("{p}", hidden.map((p) => pname(p.id)).join(", ")) : "All five naked-eye planets are up")}</p>
         </div>
         <div class="alm-stat">
-          <p class="alm-stat__k">${esc(t("tn.iss", "Space Station"))}</p>
+          <p class="alm-stat__k">${esc("Space Station")}</p>
           <p class="alm-stat__v">${issState.status === "error" ? issMain : esc(issMain)}</p>
           <p class="alm-stat__s">${esc(issSub)}</p>
         </div>
       </div>
       <div class="alm-chart" aria-hidden="true">
         <div class="alm-row alm-row--sky">
-          <div class="alm-row__label"><b>${esc(t("tn.sky", "Sky"))}</b><span>${esc(t("tn.skySub", "Twilight → dark"))}</span></div>
-          <div class="alm-row__track"><div class="alm-sky" style="background:${skyGradient()}">${marker(N.sunset, t("tn.sunsetShort", "Sunset"))}${marker(N.dusk, t("tn.dark", "Dark"))}${marker(N.dawn, t("tn.dawn", "Dawn"))}${marker(N.sunrise, t("tn.sunrise", "Sunrise"))}</div></div>
+          <div class="alm-row__label"><b>${esc("Sky")}</b><span>${esc("Twilight → dark")}</span></div>
+          <div class="alm-row__track"><div class="alm-sky" style="background:${skyGradient()}">${marker(N.sunset, "Sunset")}${marker(N.dusk, "Dark")}${marker(N.dawn, "Dawn")}${marker(N.sunrise, "Sunrise")}</div></div>
         </div>
         <div class="alm-row">
-          <div class="alm-row__label"><b>${esc(t("tn.moon", "Moon"))}</b><span>${Math.round(m.illum * 100)}% ${esc(t("sky.lit", "illuminated"))}</span></div>
+          <div class="alm-row__label"><b>${esc("Moon")}</b><span>${Math.round(m.illum * 100)}% ${esc("illuminated")}</span></div>
           <div class="alm-row__track alm-row__track--moon">${bars(N.moonAlt, { color: "230, 236, 247", darkOnly: false })}</div>
         </div>
         ${planetRows}
         ${issInWindow ? `<div class="alm-row"><div class="alm-row__label"><b>ISS</b><span>${esc(clock(issState.pass.start))}</span></div><div class="alm-row__track"><span class="alm-pass" style="left:${pct(issState.pass.start).toFixed(2)}%;width:${Math.max(0.6, pct(issState.pass.end) - pct(issState.pass.start)).toFixed(2)}%"></span></div></div>` : ""}
         <div class="alm-axis"><div class="alm-row__label"></div><div class="alm-axis__track">${ticks.join("")}</div></div>
-        ${nowIn ? `<span class="alm-now" style="--p:${(pct(now) / 100).toFixed(4)}"><span>${esc(t("tn.now", "Now"))}</span></span>` : ""}
+        ${nowIn ? `<span class="alm-now" style="--p:${(pct(now) / 100).toFixed(4)}"><span>${esc("Now")}</span></span>` : ""}
       </div>
-      <p class="alm-foot">${esc(t("tn.foot", "Computed live for Lethbridge. Bars show when each object is above the horizon; brighter means higher in a darker sky."))}</p>`;
+      <p class="alm-foot">${esc("Computed live for Lethbridge. Bars show when each object is above the horizon; brighter means higher in a darker sky.")}</p>`;
   }
 
   function safeRender() { try { render(); } catch (e) { console.error("[PAMA] tonight failed:", e); } }
@@ -341,7 +336,6 @@
       if (el) el.textContent = clock(new Date());
       if (new Date().getSeconds() < 30 || !el) safeRender();
     }, 30e3);
-    document.addEventListener("pama:lang", safeRender);
     issPass().then((pass) => { issState = { status: "ok", pass }; safeRender(); })
       .catch((e) => { console.warn("[PAMA] ISS pass unavailable:", e); issState = { status: "error" }; safeRender(); });
   }
