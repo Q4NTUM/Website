@@ -755,6 +755,13 @@ h1, h2, h3, h4 { font-weight: inherit; font-size: inherit; }
 .patch__tip { min-height: 3.2rem; text-align: center; font-size: var(--fs-sm); line-height: 1.5; color: var(--text-2); }
 .patch__tip strong { display: block; color: var(--text); font-weight: 500; }
 @media (max-width: 900px) { .patch { width: min(100%, 22rem); margin-inline: auto; } }
+/* Side by side with the hero text: hang the caption below the circle so the
+   text centres on the circle itself, whatever the length of the title */
+@media (min-width: 901px) {
+  .patch { position: relative; }
+  .patch__tip { position: absolute; top: calc(100% + 1.5rem); inset-inline: 0; }
+  .page-hero__grid:has(.patch) { margin-bottom: 4.75rem; } /* room for the hanging caption */
+}
 
 /* Resources — periodic table. Columns are groups; tiles link out */
 .pt__groups, .pt__grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; }
