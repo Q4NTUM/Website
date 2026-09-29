@@ -116,6 +116,7 @@
     if (!x) return;
     close(false);
     if (x.run) { x.run(); return; }
+    if (x.href === LINKS.joinForm) document.dispatchEvent(new CustomEvent("pama:join")); // plays the join sound
     if (x.ext || newTab) { window.open(x.href, "_blank", "noopener"); return; }
     const url = new URL(x.href, location.href);
     if (url.pathname === location.pathname && url.hash) {

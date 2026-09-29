@@ -9,6 +9,7 @@ $types = @{
   '.png'  = 'image/png'; '.jpg' = 'image/jpeg'; '.avif' = 'image/avif'
   '.svg'  = 'image/svg+xml'; '.ico' = 'image/x-icon'; '.webp' = 'image/webp'
   '.ics'  = 'text/calendar'; '.txt' = 'text/plain; charset=utf-8'
+  '.mp3'  = 'audio/mpeg'
   '.webmanifest' = 'application/manifest+json'
 }
 

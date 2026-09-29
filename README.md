@@ -41,6 +41,7 @@ Save two JPEGs in `assets/img/logbook/`: `NAME-800.jpg` (800 px on the long side
 - **Tonight's sky** (Events page, `assets/js/sky.js`): sunset, darkness, moon, planets and the next visible ISS pass, computed live for Lethbridge. The ISS uses CelesTrak orbital elements and the satellite.js library, both fetched only on that page; if they're unreachable it links to Heavens-Above instead.
 - **Search** (`assets/js/palette.js`): press `/` or Ctrl/Cmd+K, or use the search button in the header.
 - **Motion switch** in the footer: pauses every animation (also honoured automatically when a visitor's system asks for reduced motion).
+- **Join sound**: clicking any link to the membership form plays `assets/audio/its-happening.mp3` once, at 35% volume. Change the file or the volume at `JOIN_SOUND` / `JOIN_VOLUME` in `main.js`. If the file is missing, nothing plays.
 
 ### Add a page
 

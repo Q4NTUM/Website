@@ -14,7 +14,7 @@
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("motion-off");
   const motionOff = () => html.classList.contains("motion-off");
   const finePointer = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
-  const { ICONS = {}, ROOT = "" } = window.PAMA || {};
+  const { ICONS = {}, ROOT = "", LINKS = {} } = window.PAMA || {};
   const DATA = window.PAMA_DATA || {};
   const NBSP = "\u00a0";
   const TZ = "America/Edmonton";
@@ -1822,6 +1822,30 @@
       window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
     });
   }
+  /* "It's happening!" — a short sound, played once, whenever someone opens the
+     membership form. Drop the clip in at assets/audio/its-happening.mp3;
+     without the file nothing plays and nothing breaks. */
+  const JOIN_SOUND = "assets/audio/its-happening.mp3";
+  const JOIN_VOLUME = 0.35; // 0 = silent, 1 = full volume
+  function joinSound() {
+    if (!LINKS.joinForm) return;
+    let audio = null;
+    const load = () => {
+      if (!audio) { audio = new Audio(ROOT + JOIN_SOUND); audio.volume = JOIN_VOLUME; }
+      return audio;
+    };
+    const play = () => {
+      const a = load();
+      a.currentTime = 0;
+      a.play().catch(() => { /* no file yet, or the browser blocked it */ });
+    };
+    const isJoinLink = (el) => el && el.closest && el.closest(`a[href="${LINKS.joinForm}"]`);
+    // Start loading on hover/focus so the sound is ready by the time they click
+    document.addEventListener("pointerover", (e) => { if (isJoinLink(e.target)) load(); });
+    document.addEventListener("focusin", (e) => { if (isJoinLink(e.target)) load(); });
+    document.addEventListener("click", (e) => { if (isJoinLink(e.target)) play(); });
+    document.addEventListener("pama:join", play); // from the search palette
+  }
   /* Motion switch in the footer: pauses every animation on the site
      (WCAG 2.2.2) and is remembered between visits */
   function motionSwitch() {
@@ -1855,7 +1879,7 @@
       initData, buildFormats, starfield, header, menu, art,
       renderEvents, eventsUI, renderNews, newsDeepLink, equations, moon, lst,
       landing, ticker, countdown, patch, scope, eventPage, share, problem, gallery, lightbox, aperture, heroDepth,
-      reveal, spotlight, transitions, toTop, motionSwitch,
+      reveal, spotlight, transitions, toTop, joinSound, motionSwitch,
     ].forEach(safe);
     html.classList.add("js-ready");
   });
