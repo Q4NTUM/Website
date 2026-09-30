@@ -44,7 +44,7 @@ window.PAMA_DATA = {
     {
       id: "cosmic-cinema-planned", cat: "social",
       title: "Cosmic Cinema: Planned",
-      start: "2027-10-01 19:00", end: "2027-10-01 22:00",
+      start: "2027-02-01 19:00", end: "2027-02-01 22:00",
       location: "Science Commons, SA8005",
       desc: "Our next Cosmic Cinema event is currently being planned. Stay on the lookout!",
     },
