@@ -509,13 +509,34 @@ h1, h2, h3, h4 { font-weight: inherit; font-size: inherit; }
 .card--interactive:hover { border-color: var(--line-strong); background: var(--surface-hover); transform: translateY(-4px); }
 .card--interactive:hover::before { opacity: 1; }
 
-/* Giant outlined numeral behind a heading */
+/* Large outlined section numeral, at the top of each numbered heading block
+   (in the flow, so it can never run into the neighbouring sections) */
 .ghost-num {
-  position: absolute; right: var(--gutter); top: calc(var(--section) * .35); z-index: -1; pointer-events: none;
-  font-family: var(--font-mono); font-size: clamp(6rem, 16vw, 15rem); line-height: 1; font-weight: 400; letter-spacing: -0.06em;
-  color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,.07);
+  display: block; margin-bottom: -0.25rem; pointer-events: none; user-select: none;
+  font-family: var(--font-mono); font-size: clamp(3.75rem, 6.5vw, 6rem); line-height: 0.9; font-weight: 400; letter-spacing: -0.06em;
+  color: rgba(var(--accent-rgb), .07); -webkit-text-stroke: 1px rgba(var(--accent-rgb), .6);
 }
-@media (max-width: 640px) { .ghost-num { font-size: 6rem; top: 1.5rem; } }
+/* .numbered puts the numeral in a right-hand column beside the heading;
+   .numbered__wide content runs full width underneath */
+.numbered { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: clamp(1.5rem, 4vw, 4rem); }
+.numbered > * { grid-column: 1; }
+.numbered > .ghost-num { grid-column: 2; grid-row: 1; align-self: start; margin: 0; font-size: clamp(5rem, 10vw, 9rem); }
+.numbered > .numbered__wide { grid-column: 1 / -1; }
+/* The timeline stacks vertically below 1200px, so the numeral stays beside it the whole way down */
+@media (min-width: 721px) and (max-width: 1199px) {
+  .numbered--timeline > .ghost-num { grid-row: 1 / span 3; position: sticky; top: calc(var(--header-h) + 2rem); font-size: clamp(7rem, 16vw, 12rem); }
+}
+@media (min-width: 1200px) { .numbered--timeline > :is(.timeline, .placeholder-note) { grid-column: 1 / -1; } }
+/* Split layouts collapse to one column at 900px: pin the numeral to the right of the heading there too */
+@media (min-width: 721px) and (max-width: 900px) {
+  .split__aside:has(> .ghost-num) { position: relative; top: 0; }
+  .split__aside > .ghost-num { position: absolute; top: 0; right: 0; font-size: clamp(5rem, 10vw, 9rem); }
+  .split__aside > .ghost-num + * { margin-top: 0; }
+}
+@media (max-width: 720px) {
+  .numbered { grid-template-columns: minmax(0, 1fr); }
+  .numbered > .ghost-num { grid-column: 1; font-size: clamp(3.75rem, 16vw, 5rem); margin-bottom: 1rem; }
+}
 
 /* 8. Home ----------------------------------------------------------------- */
 .pillars { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: clamp(3rem, 6vw, 5rem); }
@@ -662,14 +683,6 @@ h1, h2, h3, h4 { font-weight: inherit; font-size: inherit; }
     radial-gradient(40% 55% at var(--gx, 78%) var(--gy, 30%), rgba(var(--accent-rgb), .13), transparent 70%),
     radial-gradient(35% 45% at calc(var(--gx, 78%) - 18%) calc(var(--gy, 30%) + 25%), rgba(160,130,255,.08), transparent 70%);
 }
-/* A fine coordinate grid that fades out */
-.page-hero::after {
-  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
-  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
-  background-size: 4rem 4rem; background-position: center top;
-  -webkit-mask-image: radial-gradient(60% 70% at var(--gx, 78%) 40%, rgba(0,0,0,.55), transparent 75%);
-  mask-image: radial-gradient(60% 70% at var(--gx, 78%) 40%, rgba(0,0,0,.55), transparent 75%);
-}
 .page-hero__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 5rem); align-items: center; }
 .page-hero .h1 { margin-top: 1.375rem; max-width: 14ch; }
 .page-hero .lead { margin-top: 1.5rem; }
@@ -706,18 +719,92 @@ h1, h2, h3, h4 { font-weight: inherit; font-size: inherit; }
 .orrery { width: min(100%, 30rem); aspect-ratio: 1; color: var(--text-2); }
 .orrery text { font-family: var(--font-mono); font-size: 9px; letter-spacing: .18em; fill: var(--text-3); text-transform: uppercase; }
 
-/* Events — countdown */
-.countdown { position: relative; width: min(100%, 32rem); padding: clamp(1.5rem, 3vw, 2.25rem); border: 1px solid var(--line-strong); border-radius: var(--radius-lg); }
-.countdown__digits { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.5rem; margin: 1.25rem 0 1.5rem; }
-.countdown__unit { text-align: left; }
-.countdown__unit b { display: block; font-family: var(--font-mono); font-size: clamp(2rem, 4.2vw, 3.4rem); font-weight: 400; line-height: 1; letter-spacing: -0.04em; color: var(--text); font-variant-numeric: tabular-nums; }
-.countdown__unit span { display: block; margin-top: 0.5rem; font-family: var(--font-mono); font-size: var(--fs-micro); letter-spacing: .2em; text-transform: uppercase; color: var(--text-3); }
-.countdown__event { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
-.countdown__event strong { display: block; font-size: 1.0625rem; font-weight: 500; }
-.countdown__event small { display: block; color: var(--text-2); font-size: var(--fs-sm); margin-top: 0.25rem; }
-.countdown__event:hover strong { color: var(--accent); }
-.countdown .label { display: flex; align-items: center; gap: 0.5rem; color: var(--signal); }
-.countdown .label::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; animation: pulse 2s var(--ease-soft) infinite; }
+/* Events — "next up" strip under the hero, with a live countdown */
+.nextup {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem 1.75rem;
+  margin-top: clamp(2rem, 4vw, 3.25rem); padding: 0.875rem 1.5rem;
+  border: 1px solid var(--line-strong); border-radius: 999px;
+  background: rgba(4, 6, 12, .5); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  transition: border-color .4s var(--ease-soft);
+}
+.nextup[hidden] { display: none; }
+.nextup:hover { border-color: rgba(var(--accent-rgb), .5); }
+.nextup__label { display: flex; align-items: center; gap: 0.5rem; font-family: var(--font-mono); font-size: var(--fs-micro); letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--signal); white-space: nowrap; }
+.nextup__label::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 10px currentColor; animation: pulse 2s var(--ease-soft) infinite; }
+.nextup__event { display: flex; align-items: baseline; flex-wrap: wrap; gap: 0 0.875rem; min-width: 0; }
+.nextup__event strong { font-weight: 500; transition: color .3s; }
+.nextup__event small { color: var(--text-2); font-size: var(--fs-sm); }
+.nextup:hover .nextup__event strong { color: var(--accent); }
+.nextup__clock { margin-left: auto; font-family: var(--font-mono); font-size: var(--fs-sm); color: var(--text); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.nextup__clock b { font-weight: 400; }
+.nextup__clock i { font-style: normal; color: var(--text-3); margin-left: 0.1em; }
+.nextup:hover .i-arrow { transform: translateX(4px); }
+@media (max-width: 760px) {
+  .nextup { border-radius: var(--radius-lg); padding: 1rem 1.125rem; }
+  .nextup__clock { margin-left: 0; order: 3; }
+  .nextup .i-arrow { margin-left: auto; order: 4; }
+}
+
+/* Events — the black hole (assets/js/blackhole.js). The canvas lives inside
+   the hero photo, so it shares its fade and its readability overlay. */
+.bh-canvas { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; transition: opacity 2.2s var(--ease-soft); }
+.bh-on .bh-canvas { opacity: 1; }
+.bh-active .page-hero__bg { animation: none; opacity: 1; }
+/* A lighter veil on the right, so the render isn't dimmed; the text side keeps its contrast */
+.bh-active .page-hero__bg::after {
+  background:
+    linear-gradient(90deg, rgba(4,6,12,.94) 0%, rgba(4,6,12,.74) 36%, rgba(4,6,12,.12) 62%, rgba(4,6,12,.18) 100%),
+    linear-gradient(180deg, rgba(4,6,12,.5) 0%, transparent 30%);
+}
+.bh-anchor { min-height: clamp(22rem, 33vw, 31rem); align-self: stretch; }
+.bh-credit { display: none; }
+.bh-on .bh-credit { display: inline; }
+.bh-on .photo-credit { display: none; }
+@media (max-width: 900px) { .bh-anchor { display: none; } }
+
+.bh-toggle {
+  position: absolute; left: 50%; bottom: -0.5rem; transform: translateX(-50%); z-index: 2;
+  display: inline-flex; align-items: center; gap: 0.6rem; padding: 0.5rem 1rem;
+  border: 1px solid var(--line-strong); border-radius: 999px; background: rgba(4, 6, 12, .45);
+  -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px);
+  font-family: var(--font-mono); font-size: var(--fs-micro); letter-spacing: var(--track-caps); text-transform: uppercase; color: var(--text-2);
+  opacity: 0; transition: opacity 1s var(--ease-soft) .8s, color .3s, border-color .3s;
+}
+.bh-toggle[hidden] { display: none; }
+.bh-on .bh-toggle { opacity: 1; }
+.bh-toggle:hover, .bh-toggle[aria-pressed="true"] { color: var(--text); border-color: rgba(var(--accent-rgb), .6); }
+.bh-toggle__dot { width: 9px; height: 9px; border-radius: 50%; border: 1px solid currentColor; position: relative; }
+.bh-toggle[aria-pressed="true"] .bh-toggle__dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+/* Physics labels: each one is pinned at (--x, --y) Schwarzschild radii from
+   the hole's centre; blackhole.js sets --bh-rs and the ring sizes to match.
+   A dot marks the spot, a short leader rises (or drops) from it, and the text
+   sits beside the leader's end — to the right, or to the left with --left. */
+.bh-labels { position: absolute; inset: 0; pointer-events: none; }
+.bh-labels[hidden] { display: none; }
+.bh-ring { position: absolute; left: 50%; top: 50%; border-radius: 50%; transform: translate(-50%, -50%); border: 1px dashed rgba(var(--accent-rgb), .75); }
+.bh-ring--shadow { width: calc(2 * var(--bh-shadow, 60px)); height: calc(2 * var(--bh-shadow, 60px)); }
+.bh-ring--einstein { width: calc(2 * var(--bh-einstein, 200px)); height: calc(2 * var(--bh-einstein, 200px)); border-color: rgba(255, 255, 255, .3); }
+.bh-label {
+  position: absolute; width: 0; height: 0;
+  left: calc(50% + var(--x, 0) * var(--bh-rs, 20px)); top: calc(50% + var(--y, 0) * var(--bh-rs, 20px));
+  animation: bh-label-in .6s var(--ease-soft) both;
+}
+.bh-label--einstein { left: calc(50% + 0.7071 * var(--bh-einstein, 200px)); top: calc(50% + 0.7071 * var(--bh-einstein, 200px)); }
+.bh-label i { position: absolute; left: -3.5px; top: -3.5px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 3px rgba(4, 6, 12, .55), 0 0 10px var(--accent); }
+.bh-label::before { content: ""; position: absolute; left: 0; width: 1px; height: 1.6rem; background: rgba(var(--accent-rgb), .65); }
+.bh-label--up::before { bottom: 5px; }
+.bh-label--down::before { top: 5px; }
+.bh-label__text {
+  position: absolute; left: 0.6rem; width: 11rem;
+  font-family: var(--font-mono); font-size: var(--fs-micro); letter-spacing: .1em; text-transform: uppercase; color: var(--text);
+  text-shadow: 0 1px 2px rgba(4, 6, 12, .95), 0 0 14px rgba(4, 6, 12, .95);
+}
+.bh-label--up .bh-label__text { bottom: 1.1rem; }
+.bh-label--down .bh-label__text { top: 1.1rem; }
+.bh-label--left .bh-label__text { left: auto; right: 0.6rem; text-align: right; }
+.bh-label__text small { display: block; margin-top: 0.3rem; font-family: var(--font-sans); font-size: 0.75rem; letter-spacing: 0; text-transform: none; color: var(--text-2); line-height: 1.4; }
+@keyframes bh-label-in { from { opacity: 0; } to { opacity: 1; } }
 .corner-ticks::after {
   content: ""; position: absolute; inset: -1px; pointer-events: none; border-radius: inherit;
   --t: 0.875rem; --c: rgba(var(--accent-rgb), .7);
@@ -902,6 +989,13 @@ h1, h2, h3, h4 { font-weight: inherit; font-size: inherit; }
 .sky__moon { width: 4rem; height: 4rem; }
 .sky__value { font-size: 1.15rem; margin-top: 0.25rem; }
 .sky__note { font-size: var(--fs-sm); color: var(--text-2); margin-top: 0.25rem; }
+/* Full-width strip version (Resources → Observing): one line, under the list */
+.sky--strip { margin-top: clamp(1.75rem, 3vw, 2.5rem); padding: 1rem 1.5rem; gap: 1.25rem; }
+.sky--strip .sky__moon { width: 2.75rem; height: 2.75rem; }
+.sky--strip > div { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.25rem 1.75rem; }
+.sky--strip :is(.sky__value, .sky__note) { margin-top: 0; }
+.sky--strip .sky__note { margin-left: auto; }
+@media (max-width: 760px) { .sky--strip > div { display: block; } .sky--strip :is(.sky__value, .sky__note) { margin-top: 0.25rem; } }
 
 /* Add-to-calendar popover */
 .cal { position: relative; }
@@ -1240,7 +1334,6 @@ html:not(.is-intro) .hero__foot > :nth-child(4) { animation-delay: .8s; }
     linear-gradient(180deg, rgba(4,6,12,.5) 0%, transparent 30%);
 }
 @keyframes hero-drift { from { transform: scale(1.04) translate3d(-0.6%, 0, 0); } to { transform: scale(1.1) translate3d(0.6%, -1%, 0); } }
-.page-hero:has(.page-hero__bg)::after { opacity: .5; }
 .page-hero__credit {
   position: absolute; right: var(--gutter); bottom: 1rem; z-index: 1;
   font-family: var(--font-mono); font-size: var(--fs-micro); letter-spacing: .08em; color: var(--text-3);
@@ -1534,8 +1627,6 @@ html:not(.is-intro) .hero__foot > :nth-child(4) { animation-delay: .8s; }
    Refinements from the design and accessibility review
    ========================================================================== */
 
-/* Outlined section numerals float in the gap between sections, clear of text */
-.ghost-num { top: 0; transform: translateY(-45%); }
 
 /* Cards sit on a dark base so the animated skies never run behind their text */
 .card, .post, .step, .sky { background: linear-gradient(var(--surface), var(--surface)), rgba(6, 9, 17, .72); }

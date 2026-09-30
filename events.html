@@ -27,6 +27,7 @@
   <script src="assets/js/data.js" defer></script>
   <script src="assets/js/main.js" defer></script>
   <script src="assets/js/sky.js" defer></script>
+  <script src="assets/js/blackhole.js" defer></script>
 </head>
 <body id="top" data-theme="events">
   <site-header active="events"></site-header>
@@ -34,7 +35,7 @@
   <div class="page">
     <main id="main">
 
-      <section class="page-hero" style="--gx: 80%; --gy: 35%">
+      <section class="page-hero" style="--gx: 80%; --gy: 35%" data-blackhole>
         <div class="page-hero__bg" style="background-image:url('assets/img/bg/pillars.jpg')" aria-hidden="true"></div>
         <div class="container page-hero__grid">
           <div>
@@ -43,20 +44,31 @@
             <p class="lead intro" style="--d:160ms">Talks, observing nights, workshops, and socials. All free, open to everyone, and no background required.</p>
             <p class="page-hero__meta intro" style="--d:240ms"><span><span>Upcoming</span><b data-upcoming-count>—</b></span><span><span>Time zone</span><b>Mountain Time</b></span><span><span>Cost</span><b>Free</b></span></p>
           </div>
-          <div class="page-hero__visual intro" style="--d:220ms">
-            <a class="countdown corner-ticks" href="#upcoming-title" data-countdown hidden>
-              <p class="label" data-cd-label>Next up</p>
-              <div class="countdown__digits" aria-hidden="true">
-                <div class="countdown__unit"><b data-cd="d">00</b><span>Days</span></div>
-                <div class="countdown__unit"><b data-cd="h">00</b><span>Hrs</span></div>
-                <div class="countdown__unit"><b data-cd="m">00</b><span>Min</span></div>
-                <div class="countdown__unit"><b data-cd="s">00</b><span>Sec</span></div>
-              </div>
-              <div class="countdown__event"><div><strong data-cd-title>—</strong><small data-cd-when>—</small></div><span class="i i-arrow" aria-hidden="true"></span></div>
-            </a>
+          <!-- The black hole is drawn by assets/js/blackhole.js, centred on this box -->
+          <div class="page-hero__visual bh-anchor" data-bh-anchor>
+            <div class="bh-labels" id="bh-labels" data-bh-labels hidden>
+              <span class="bh-ring bh-ring--shadow"></span>
+              <span class="bh-ring bh-ring--einstein"></span>
+              <!-- Pinned at --x, --y Schwarzschild radii from the centre (+x right, +y down) -->
+              <span class="bh-label bh-label--up bh-label--left" style="--x: -1.85; --y: -1.85"><i></i><span class="bh-label__text">Shadow<small>2.6× wider than the event horizon. Light that comes inside this edge falls in.</small></span></span>
+              <span class="bh-label bh-label--up" style="--x: 1.2; --y: -3.9"><i></i><span class="bh-label__text">Far side of the disk<small>Its light is bent up and over the top of the hole.</small></span></span>
+              <span class="bh-label bh-label--down bh-label--left" style="--x: -7.5; --y: 0.4"><i></i><span class="bh-label__text">Coming toward you<small>Doppler-boosted: brighter and bluer.</small></span></span>
+              <span class="bh-label bh-label--up bh-label--left" style="--x: 7.5; --y: -0.1"><i></i><span class="bh-label__text">Moving away<small>Dimmer and redder.</small></span></span>
+              <span class="bh-label bh-label--down" style="--x: -3.4; --y: 0.5"><i></i><span class="bh-label__text">Inner edge · 3 r<sub>s</sub><small>No stable orbits closer in than this.</small></span></span>
+              <span class="bh-label bh-label--down bh-label--einstein"><i></i><span class="bh-label__text">Bent starlight<small>The photo behind the hole, lensed into a ring.</small></span></span>
+            </div>
+            <button class="bh-toggle" type="button" data-bh-toggle aria-pressed="false" aria-controls="bh-labels" hidden><span class="bh-toggle__dot" aria-hidden="true"></span>Show the physics</button>
           </div>
         </div>
-        <p class="page-hero__credit"><b>Pillars of Creation · Eagle Nebula (M16)</b> — NASA, ESA, Hubble Heritage Team</p>
+        <div class="container">
+          <a class="nextup" href="#upcoming-title" data-countdown hidden>
+            <span class="nextup__label" data-cd-label>Next up</span>
+            <span class="nextup__event"><strong data-cd-title>—</strong><small data-cd-when>—</small></span>
+            <span class="nextup__clock" aria-hidden="true"><b data-cd="d">00</b><i>d</i> <b data-cd="h">00</b><i>h</i> <b data-cd="m">00</b><i>m</i> <b data-cd="s">00</b><i>s</i></span>
+            <span class="i i-arrow" aria-hidden="true"></span>
+          </a>
+        </div>
+        <p class="page-hero__credit"><span class="photo-credit"><b>Pillars of Creation · Eagle Nebula (M16)</b> — NASA, ESA, Hubble Heritage Team</span><span class="bh-credit"><b>Live render</b> — a black hole and its sky, ray-traced in your browser</span></p>
       </section>
 
       <!-- Upcoming -->
